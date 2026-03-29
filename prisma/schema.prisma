@@ -1,0 +1,140 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String       @id @default(cuid())
+  email       String       @unique
+  name        String
+  nickname    String?
+  password    String
+  role        String       @default("student") // student, mentor, admin
+  avatar      String?
+  isVerified  Boolean      @default(false)
+  courses     Course[]     @relation("MentorCourses")
+  enrollments Enrollment[]
+  payouts     Payout[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Course {
+  id          String       @id @default(cuid())
+  title       String
+  description String
+  price       Float        @default(0)
+  category    String
+  level       String       @default("beginner")
+  isVerified  Boolean      @default(false)
+  mentorId    String
+  mentor      User         @relation("MentorCourses", fields: [mentorId], references: [id], onDelete: Cascade)
+  modules     Module[]
+  enrollments Enrollment[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([category])
+  @@index([isVerified])
+  @@index([mentorId])
+}
+
+model Module {
+  id        String   @id @default(cuid())
+  title     String
+  order     Int      @default(0)
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons   Lesson[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([courseId])
+}
+
+model Lesson {
+  id          String   @id @default(cuid())
+  title       String
+  description String?  // Specific video/lesson description
+  videoUrl    String?
+  content     String?  // Long form text/markdown
+  order       Int      @default(0)
+  moduleId    String
+  module      Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([moduleId])
+}
+
+model Enrollment {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId        String
+  course          Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  status          String   @default("active") // active, completed, refunded
+  paidAmount      Float    @default(0)
+  payoutProcessed Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  
+  @@unique([userId, courseId])
+}
+
+model Coupon {
+  id             String    @id @default(cuid())
+  code           String    @unique
+  discountType   String    @default("fixed") // fixed (PLN) or percent (%)
+  discountValue  Float
+  maxUses        Int?      @default(0) // 0 = unlimited
+  usedCount      Int       @default(0)
+  expiresAt      DateTime?
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([code])
+}
+
+model Article {
+  id          String   @id @default(cuid())
+  title       String
+  content     String
+  excerpt     String
+  author      String
+  image       String   @default("📖")
+  slug        String   @unique
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([slug])
+  @@index([isPublished])
+}
+
+model GlobalConfig {
+  id              String   @id @default("config")
+  siteName        String   @default("Młodzi Mentorzy")
+  contactEmail    String   @default("kontakt@mlodzimentorzy.pl")
+  maintenanceMode Boolean  @default(false)
+  bannerMessage   String?
+  platformFee     Float    @default(100.0) // Platform owner gets 100 PLN per course
+  updatedAt       DateTime @updatedAt
+}
+
+model Payout {
+  id        String   @id @default(cuid())
+  mentorId  String
+  mentor    User     @relation(fields: [mentorId], references: [id], onDelete: Cascade)
+  amount    Float
+  status    String   @default("pending") // pending, paid, rejected
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([mentorId])
+}
