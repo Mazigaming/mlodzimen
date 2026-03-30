@@ -1,9 +1,7 @@
 import { NextRequest } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
 import { getAuthSession } from '@/lib/auth/jwt';
 import { apiError, apiResponse, ApiError } from '@/lib/api-utils';
-import { existsSync } from 'fs';
+import { uploadImage } from '@/lib/cloudinary';
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,21 +25,8 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Create uploads directory if it doesn't exist
-    const uploadDir = join(process.cwd(), 'public', 'uploads', 'avatars');
-    if (!existsSync(uploadDir)) {
-      await mkdir(uploadDir, { recursive: true });
-    }
-
-    // Generate unique filename
-    const filename = `${session.userId}-${Date.now()}.jpg`;
-    const filepath = join(uploadDir, filename);
-
-    // Save file
-    await writeFile(filepath, buffer);
-
-    // Return the URL
-    const avatarUrl = `/uploads/avatars/${filename}`;
+    // Upload to Cloudinary
+    const avatarUrl = await uploadImage(buffer, 'mlodzi-mentorzy/avatars');
 
     return apiResponse({ avatar: avatarUrl });
   } catch (error) {
