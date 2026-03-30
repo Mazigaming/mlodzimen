@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
-
+2
 async function main() {
   try {
     const existingAdmin = await prisma.user.findUnique({

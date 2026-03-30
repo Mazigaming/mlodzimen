@@ -20,11 +20,10 @@ export async function setAuthCookie(token: string) {
   
   cookieStore.set(AUTH_COOKIE_NAME, token, {
     httpOnly: true,
-    secure: isProduction,
+    secure: false,
     sameSite: 'lax',
     maxAge: 30 * 24 * 60 * 60, // 30 days
     path: '/',
-    domain: isProduction ? '.mlodzimentorzy.pl' : undefined,
   });
 }
 
