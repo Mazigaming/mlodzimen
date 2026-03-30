@@ -59,12 +59,11 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     
-    // Legacy support for action pattern if needed, or direct update
     if (body.action === 'get') {
        return GET(request);
     }
 
-    const data = ProfileUpdateSchema.parse(body.action === 'update' ? body : body);
+    const data = ProfileUpdateSchema.parse(body);
 
     const updatedUser = await prisma.user.update({
       where: { id: session.userId },
