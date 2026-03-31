@@ -1,44 +1,53 @@
-import { v2 as cloudinary } from 'cloudinary';
+import path from 'path';
+import fs from 'fs';
 
-// Configure Cloudinary only if all credentials are present
-if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
-  cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-  });
-}
+// Ensure upload directories exist
+const ensureDir = (dir: string) => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+};
+
+const avatarsDir = path.join(process.cwd(), 'public/uploads/avatars');
+const articlesDir = path.join(process.cwd(), 'public/uploads/articles');
+
+// Ensure directories exist on startup
+ensureDir(avatarsDir);
+ensureDir(articlesDir);
 
 export async function uploadImage(buffer: Buffer, folder: string): Promise<string> {
-  // Check if Cloudinary is configured
-  if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-    throw new Error('Cloudinary not configured. Please add CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET to environment variables.');
+  // Generate unique filename
+  const uniqueId = crypto.randomUUID();
+  const ext = 'jpg'; // Default extension
+  const filename = `${uniqueId}.${ext}`;
+  
+  // Determine which folder to use based on the 'folder' parameter
+  let uploadDir: string;
+  if (folder.includes('avatar')) {
+    uploadDir = avatarsDir;
+  } else if (folder.includes('article')) {
+    uploadDir = articlesDir;
+  } else {
+    uploadDir = path.join(process.cwd(), 'public/uploads', folder);
   }
   
-  return new Promise((resolve, reject) => {
-    const uploadStream = cloudinary.uploader.upload_stream(
-      {
-        folder,
-        resource_type: 'image',
-        transformation: [
-          { width: 400, height: 400, crop: 'fill', gravity: 'face' }
-        ]
-      },
-      (error, result) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(result!.secure_url);
-        }
-      }
-    );
-    
-    uploadStream.end(buffer);
-  });
+  ensureDir(uploadDir);
+  
+  const filepath = path.join(uploadDir, filename);
+  
+  // Write file to disk
+  fs.writeFileSync(filepath, buffer);
+  
+  // Return the public URL path
+  const publicPath = filepath.replace(path.join(process.cwd(), 'public'), '');
+  return publicPath;
 }
 
-export async function deleteImage(publicId: string): Promise<void> {
-  await cloudinary.uploader.destroy(publicId);
+export async function deleteImage(filepath: string): Promise<void> {
+  // Full path to the file
+  const fullPath = path.join(process.cwd(), 'public', filepath);
+  
+  if (fs.existsSync(fullPath)) {
+    fs.unlinkSync(fullPath);
+  }
 }
-
-export default cloudinary;
