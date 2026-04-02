@@ -20,14 +20,14 @@ export default function AboutPage() {
     {
       name: 'Dominik Popek',
       role: 'Co-founder',
-      bio: 'Pasjonat edukacji z bogatym doświadczeniem w tech branży',
-      icon: '👨‍💼',
+      bio: 'Pasjonat edukacji, korepetytor, radny Rady Młodzieży Rzeszowa',
+      icon: <img src="/dominikpopek.jpg" alt="hero" className="w-full h-96 object-cover group-hover:scale-105 transition-transform duration-500"/>,
     },
     {
-      name: 'Kuba',
+      name: 'Jakub Wenerski',
       role: 'Co-founder',
-      bio: 'Wizjoner, którego celem jest zmiana edukacji w Polsce',
-      icon: '👨‍💼',
+      bio: 'Pasjonat samorozwoju, amatorski trener, montażysta',
+      icon: <img src="/jakubwenerski.png" alt="hero" className="w-full h-96 object-cover group-hover:scale-105 transition-transform duration-500"/>,
     },
   ];
 
@@ -67,15 +67,16 @@ export default function AboutPage() {
             backdropFilter: 'blur(10px)',
           }}
         >
-          <h2 id="mission-title" className="text-3xl font-black text-white mb-6">Nasza Misja</h2>
+          <h2 id="mission-title" className="text-3xl font-black text-white mb-6 text-center">Nasza Misja</h2>
           <div className="space-y-4 text-gray-400 text-lg leading-relaxed">
-            <p>
-              Wierzymy, że edukacja ma moc zmieniać światy. Młodzi Mentorzy to platforma, 
-              gdzie doświadczenie spotyka się z ambicją, a wiedza staje się dostępna dla wszystkich.
+            <p className="text-gradient-warm">
+                Jako użytkownicy ponad 100-letniego systemu edukacji widzimy, jak bardzo ten system nas zawodzi. Nadmierny stres spowodowany ciągłymi egzaminami, zapychanie programów nauczania bezużetycznymi informacjami, brak indywidualnego podejścia do uczniów, brak praktycznych umiejętności - to tylko niektóre z problemów, które dostrzegamy. Działaniami społecznymi tu nie wiele zmienisz - politycy nie chcą zmian żyjąc przeszłością, nauczyciele są zbyt przeciążani i niedoceniani, by je wprowadzać, a szkoły czy lokalne władze nie mają nic do gadania w najważniejszych kwiestiach. Czas wziąć sprawy w swoje ręce.
             </p>
-            <p>
-              Naszym celem jest stworzenie społeczności, w której każdy może się rozwijać, 
-              uczyć i zarabiać poprzez dzielenie się swoją wiedzą.
+            <p className="text-gradient-warm">
+                Edukacja to nie tylko wiedza książkowa i sprawdziany. To przede wszystkim umiejętności, które pozwalają młodym ludziom odnaleźć się w życiu, rozwijać swoje pasje i realizować marzenia. Szkoła skutecznie zabija w nas zarówno chęci do nauki, jak i umiejętność samodzielnego wyznaczania sobie celów. Całe życie jesteśmy przygotowywani na stale nieaktualny schemat i „przychodzenie na gotowe”: podstawówka, szkoła średnia, studia i po nich papierek, który częściej niż rzadziej nie ma większej wartości.
+            </p>
+            <p className="text-gradient-warm">
+                Chcemy to zmienić. Chcemy dać młodym ludziom łatwiejszy dostęp do wiedzy, której realnie potrzebują, może to być cokolwiek - gra na instrumencie, budowanie planów treningowych, higiena psychiczna czy cokolwiek innego, co na prawdę wpływa na nasze życie - oraz dać możliwość zarobku dla osób, które chcą podzielić się swoją wiedzą z innymi w danej dziedzinie. Chcemy stworzyć społeczność, która będzie niezależna i samodzielna w rozwoju i która wspierała się nawzajem insirując do działania. Chcemy pokazać, że rozwój może być fascynującą przygodą, a nie tylko obowiązkiem do odhaczenia. Młodzi Mentorzy, to na ten moment zwykła, amatorska inicjatywa, ale wierzymy, że może stać się czymś więcej - ruchem, który zmieni oblicze edukacji w Polsce. Dołącz do nas i razem z nami twórz przyszłość edukacji!
             </p>
           </div>
         </motion.section>

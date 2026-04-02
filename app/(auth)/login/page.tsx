@@ -63,9 +63,6 @@ export default function LoginPage() {
       >
         <div className="space-y-8">
           <div className="text-center space-y-3">
-            <span className="speech-bubble inline-block">
-              Powrót! 👋
-            </span>
             <h1 className="text-4xl md:text-5xl font-black text-white">
               Zaloguj się
             </h1>

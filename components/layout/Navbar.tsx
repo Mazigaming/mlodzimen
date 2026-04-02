@@ -40,7 +40,6 @@ export default function Navbar() {
   }
 
   const navLinks = [
-    { href: '/', label: 'Start' },
     { href: '/kursy', label: 'Kursy' },
     { href: '/artykuly', label: 'Artykuły' },
     { href: '/mentoring', label: 'Mentorzy' },

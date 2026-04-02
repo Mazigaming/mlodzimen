@@ -74,14 +74,11 @@ export default function CoursesPage() {
       >
         <motion.div variants={itemVariants} className="text-center mb-16 space-y-4">
           <span className="speech-bubble inline-block" role="status">
-            Nasze Kursy 📚
+            Cały czas dodajemy nowe treści 📚
           </span>
           <h1 className="text-5xl md:text-7xl font-black text-white">
-            Odkryj <span className="text-gradient-warm">Wiedzę</span>
+            Nasze <span className="text-gradient-warm">Kursy</span>
           </h1>
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-            Bogatą kolekcję kursów od doświadczonych mentorów czeka na Ciebie
-          </p>
         </motion.div>
 
         {/* Search and Filter */}

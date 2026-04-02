@@ -10,7 +10,7 @@ export default function Footer() {
           <section aria-labelledby="footer-brand">
             <p id="footer-brand" className="text-xl font-bold mb-4 gradient-text">🚀 Młodzi Mentorzy</p>
             <p className="text-gray-400">
-              Platforma edukacyjna łącząca młodych mentorów z osobami chętnymi do nauki.
+              Podziel się wiedzą!
             </p>
           </section>
 
@@ -58,8 +58,8 @@ export default function Footer() {
 
           <section aria-labelledby="footer-contact">
             <h4 id="footer-contact" className="font-semibold mb-4 text-blue-400">Kontakt</h4>
-            <p className="text-gray-400">email@example.com</p>
-            <p className="text-gray-400">+48 XXX XXX XXX</p>
+            <p className="text-gray-400">mlodzimentorzy@gmail.com</p>
+            <p className="text-gray-400">+48 729 969 667 / +48 789 303 588</p>
           </section>
         </div>
 

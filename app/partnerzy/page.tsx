@@ -18,10 +18,8 @@ const itemVariants = {
 
 export default function PartnersPage() {
   const partners = [
-    { name: 'Future Code', description: 'Wsparcie technologiczne i staże dla najlepszych kursantów.', icon: '💻' },
-    { name: 'Creative Minds', description: 'Partner w obszarze designu i kreatywności.', icon: '🎨' },
-    { name: 'EduVentures', description: 'Fundusz wspierający innowacje w edukacji.', icon: '🚀' },
-    { name: 'TechHub PL', description: 'Inkubator dla młodych talentów IT.', icon: '🏢' },
+    { name: 'Zapraszamy!', description: 'Tu może się pojawić Twoja organizacja!', icon: '🏢'},
+    // { name: 'TechHub PL', description: 'Inkubator dla młodych talentów IT.', icon: '🏢' },
   ];
 
   return (
@@ -45,9 +43,6 @@ export default function PartnersPage() {
           <h1 className="text-6xl md:text-8xl font-black text-white tracking-tighter">
             Budujemy <span className="text-gradient-warm">Przyszłość</span> Razem
           </h1>
-          <p className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto font-medium">
-            Współpracujemy z liderami branży, aby dostarczać najlepsze możliwości rozwoju dla naszych uczniów.
-          </p>
         </motion.div>
 
         <motion.div 
@@ -86,14 +81,11 @@ export default function PartnersPage() {
         >
           <div className="absolute top-0 right-0 p-8 text-6xl opacity-20" aria-hidden="true">🤝</div>
           <h2 className="text-4xl md:text-5xl font-black text-white leading-tight">Chcesz Być Częścią <br/> Tej Misji?</h2>
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
-            Dołącz do grona partnerów Młodych Mentorów i pomóż nam rewolucjonizować polski system edukacji.
-          </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/kontakt" className="btn btn-primary px-10 py-4 text-lg focus:ring-4 focus:ring-blue-500/20">
               Skontaktuj Się Z Nami
             </Link>
-            <Link href="/o-nas" className="px-10 py-4 rounded-2xl border border-slate-700 text-white font-black hover:bg-slate-800 transition-all text-lg focus:ring-4 focus:ring-slate-500/20">
+            <Link href="/o-nas" className="btn btn-outline px-10 py-4 text-lg focus:ring-4 focus:ring-blue-500/20">
               Poznaj Naszą Wizję
             </Link>
           </div>
