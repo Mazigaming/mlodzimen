@@ -157,13 +157,17 @@ export default function Home() {
           <div className="space-y-32">
             {/* Featured Image */}
             <div data-scroll-reveal className="relative overflow-hidden rounded-2xl border border-slate-700/50 group hover:border-white/30 transition-all duration-300 hover:shadow-xl">
-              <div className="relative h-96 md:h-[480px] lg:h-[580px] overflow-hidden">
-                <img
+              <div className="relative h-96 md:h-[480px] lg:h-[580px] overflow-hidden flex items-center justify-center h-screen">
+                <svg  width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="32" cy="32" r="30" fill="#001aff" stroke="#FFFFFF" stroke-width="4"/>
+                  <path d="M26 22L42 32L26 42Z" fill="#FFFFFF"/>
+                </svg>  
+                {/* <img
                   data-parallax
                   src="/placeholder.png"
                   alt="featured"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                />
+                /> */}
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent group-hover:from-slate-950/30 transition-all duration-300" />
               </div>
             </div>
@@ -185,23 +189,28 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Images Grid */}
-              <div className="grid grid-cols-2 gap-5">
-                {[1, 2, 3, 4].map((i) => (
+                {/* Images Grid */}
+                <div className="grid grid-cols-2 gap-5">
+                {[
+                  '/nagrywki.jpeg',
+                  '/bruh.jpeg',
+                  '/dominikpopek.jpg',
+                  '/jakubwenerski.png',
+                ].map((src, i) => (
                   <div
-                    key={i}
-                    data-scroll-reveal
-                    className="relative overflow-hidden rounded-xl border border-slate-700/50 group aspect-square hover:border-white/30 transition-all duration-300 hover:shadow-lg"
+                  key={i}
+                  data-scroll-reveal
+                  className="relative overflow-hidden rounded-xl border border-slate-700/50 group aspect-square hover:border-white/30 transition-all duration-300 hover:shadow-lg"
                   >
-                    <img
-                      src="/placeholder.png"
-                      alt="placeholder"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/30 to-transparent" />
+                  <img
+                    src={src}
+                    alt="placeholder"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/30 to-transparent" />
                   </div>
                 ))}
-              </div>
+                </div>
             </div>
           </div>
         </div>
