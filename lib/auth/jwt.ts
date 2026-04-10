@@ -15,16 +15,13 @@ export function generateToken(userId: string, email: string, role: string): stri
 export async function setAuthCookie(token: string) {
   const cookieStore = await cookies();
   
-  // Get current host for cookie domain
-  const isProduction = process.env.NODE_ENV === 'production';
-  
+  // Cookie settings for production
   cookieStore.set(AUTH_COOKIE_NAME, token, {
     httpOnly: true,
-    secure: isProduction,
+    secure: false,
     sameSite: 'lax',
     maxAge: 30 * 24 * 60 * 60, // 30 days
     path: '/',
-    domain: isProduction ? '.mlodzimentorzy.pl' : undefined,
   });
 }
 

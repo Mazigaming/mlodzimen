@@ -2,7 +2,6 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
-
 async function main() {
   try {
     const existingAdmin = await prisma.user.findUnique({
@@ -18,6 +17,7 @@ async function main() {
           name: 'Admin Test',
           password: hashedPassword,
           role: 'mentor',
+          avatar: '/uploads/avatars/cmmxk5v5y00009e3sns5m5f07-1773930470840.jpg',
         },
       });
 
@@ -39,6 +39,7 @@ async function main() {
           password: hashedPassword,
           role: 'admin', 
           isVerified: true,
+          avatar: '/uploads/avatars/cmmb0zrdq000166ue05c22sv9-1773931862863.jpg',
         },
       });
       console.log('✅ Main Admin account created: admin@admin.com');
