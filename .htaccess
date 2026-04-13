@@ -1,0 +1,7 @@
+DirectoryIndex index.html
+Options +FollowSymLinks
+RewriteEngine On
+RewriteBase /
+
+# Forward all requests to proxy on port 3001
+RewriteRule ^(.*)$ http://127.0.0.1:8080/$1 [P,L]

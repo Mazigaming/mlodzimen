@@ -1,7 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -18,15 +19,64 @@ const itemVariants = {
 
 export default function MentoringPage() {
   const [isLoading, setIsLoading] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  async function checkAuth() {
+    try {
+      const response = await fetch('/api/auth/me');
+      if (response.ok) {
+        const data = await response.json();
+        setIsAuthenticated(true);
+        setUserRole(data.user.role);
+      }
+    } catch (error) {
+      console.error('Auth check failed:', error);
+    }
+  }
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    if (!isAuthenticated || userRole !== 'mentor') {
+      alert('Tylko mentorzy mogą wysyłać wnioski o mentora.');
+      return;
+    }
+
     setIsLoading(true);
-    
-    setTimeout(() => {
+
+    try {
+      const formData = new FormData(e.currentTarget);
+      const response = await fetch('/api/mentor/application', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          specialization: formData.get('specialization'),
+          experience: formData.get('experience'),
+          aboutYou: formData.get('aboutYou'),
+          aboutCourse: formData.get('aboutCourse'),
+        }),
+      });
+
+      if (response.ok) {
+        alert('Dziękujemy! Twoja aplikacja została wysłana. Wkrótce się z Tobą skontaktujemy!');
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Wystąpił błąd podczas wysyłania aplikacji.');
+      }
+    } catch (error) {
+      console.error('Submit error:', error);
+      alert('Wystąpił błąd podczas wysyłania aplikacji.');
+    } finally {
       setIsLoading(false);
-      alert('Dziękujemy! Twoja aplikacja została wysłana. Wkrótce się z Tobą skontaktujemy!');
-    }, 2000);
+    }
   }
 
   return (
@@ -112,9 +162,11 @@ export default function MentoringPage() {
                 Dziedzina specjalizacji
               </label>
               <input
+                name="specialization"
                 type="text"
                 placeholder="np. Python, Web Development, itp."
                 className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-500 transition-all"
+                required
               />
             </div>
 
@@ -123,9 +175,11 @@ export default function MentoringPage() {
                 Lata doświadczenia
               </label>
               <input
+                name="experience"
                 type="number"
                 placeholder="np. 3"
                 className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-500 transition-all"
+                required
               />
             </div>
 
@@ -134,9 +188,24 @@ export default function MentoringPage() {
                 O Tobie
               </label>
               <textarea
+                name="aboutYou"
                 placeholder="Opowiedz nam o sobie i dlaczego chcesz być mentorem"
                 rows={4}
                 className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-500 transition-all resize-none"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-300 mb-2 uppercase tracking-wide">
+                O Twoim Kursie
+              </label>
+              <textarea
+                name="aboutCourse"
+                placeholder="Plan na twój kurs"
+                rows={4}
+                className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-500 transition-all resize-none"
+                required
               />
             </div>
 

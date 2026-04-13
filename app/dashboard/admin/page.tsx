@@ -377,7 +377,20 @@ export default function AdminDashboard() {
       const res = await fetch('/api/admin/users', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, status: !currentStatus })
+        body: JSON.stringify({ userId, isVerified: !currentStatus })
+      });
+      if (res.ok) fetchUsers();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function toggleUserActive(userId: string, currentStatus: boolean) {
+    try {
+      const res = await fetch('/api/admin/users', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, isActive: !currentStatus })
       });
       if (res.ok) fetchUsers();
     } catch (err) {
@@ -742,6 +755,7 @@ export default function AdminDashboard() {
                           <th className="p-6">Użytkownik</th>
                           <th className="p-6">Rola</th>
                           <th className="p-6">Weryfikacja</th>
+                          <th className="p-6">Aktywność</th>
                           <th className="p-6 text-right">Akcje</th>
                         </tr>
                       </thead>
@@ -787,6 +801,16 @@ export default function AdminDashboard() {
                                   <span>{u.isVerified ? 'Zweryfikowany' : 'Oczekuje'}</span>
                                 </div>
                               ) : <span className="text-gray-600">—</span>}
+                            </td>
+                            <td className="p-6">
+                              <button
+                                onClick={() => toggleUserActive(u.id, u.isActive)}
+                                className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase transition-all ${
+                                  u.isActive ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'
+                                }`}
+                              >
+                                {u.isActive ? 'Aktywny' : 'Zablokowany'}
+                              </button>
                             </td>
                             <td className="p-6 text-right">
                               {u.role === 'mentor' && (
