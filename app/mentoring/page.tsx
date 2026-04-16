@@ -32,8 +32,10 @@ export default function MentoringPage() {
       const response = await fetch('/api/auth/me');
       if (response.ok) {
         const data = await response.json();
-        setIsAuthenticated(true);
-        setUserRole(data.user.role);
+        if (data.user) {
+          setIsAuthenticated(true);
+          setUserRole(data.user.role);
+        }
       }
     } catch (error) {
       console.error('Auth check failed:', error);
