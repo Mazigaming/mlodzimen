@@ -24,7 +24,7 @@ export default function UserCouponsPage() {
   const [formData, setFormData] = useState({
     code: '',
     discountType: 'percent' as 'percent' | 'fixed',
-    discountValue: 5,
+    discountValue: 10,
     maxUses: 0,
     expiresAt: '',
     isActive: true

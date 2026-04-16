@@ -112,7 +112,7 @@ model Coupon {
 model Article {
   id          String   @id @default(cuid())
   title       String
-  content     String
+  content     String   @db.LongText
   excerpt     String
   author      String
   image       String   @default("📖")
