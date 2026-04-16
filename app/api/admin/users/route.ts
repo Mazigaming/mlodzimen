@@ -6,7 +6,8 @@ import { z } from 'zod';
 
 const UpdateUserSchema = z.object({
   userId: z.string(),
-  status: z.boolean().optional(),
+  isVerified: z.boolean().optional(),
+  isActive: z.boolean().optional(),
   role: z.enum(['student', 'mentor', 'admin']).optional(),
 });
 
@@ -29,6 +30,7 @@ export async function GET(_request: NextRequest) {
         avatar: true,
         role: true,
         isVerified: true,
+        isActive: true,
         createdAt: true,
       },
       orderBy: { createdAt: 'desc' }
@@ -48,10 +50,11 @@ export async function PATCH(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { userId, status, role } = UpdateUserSchema.parse(body);
+    const { userId, isVerified, isActive, role } = UpdateUserSchema.parse(body);
 
     const data: any = {};
-    if (status !== undefined) data.isVerified = status;
+    if (isVerified !== undefined) data.isVerified = isVerified;
+    if (isActive !== undefined) data.isActive = isActive;
     if (role !== undefined) {
       if (session.email !== 'admin@admin.com' && role === 'admin') {
         throw new ApiError('Tylko główny administrator może nadawać uprawnienia admina', 403);
@@ -64,9 +67,9 @@ export async function PATCH(request: NextRequest) {
       data
     });
 
-    return apiResponse({ 
-      user: { id: user.id, isVerified: user.isVerified, role: user.role }, 
-      message: 'Użytkownik zaktualizowany' 
+    return apiResponse({
+      user: { id: user.id, isVerified: user.isVerified, isActive: user.isActive, role: user.role },
+      message: 'Użytkownik zaktualizowany'
     });
   } catch (error) {
     return apiError(error);

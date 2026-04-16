@@ -148,12 +148,24 @@ export default function AdminArticlesPage() {
     const selected = text.substring(start, end);
     
     let newText = '';
-    if (tag === 'b') newText = `<b>${selected}</b>`;
-    else if (tag === 'i') newText = `<i>${selected}</i>`;
+    if (tag === 'h1') newText = `<h1>${selected}</h1>`;
     else if (tag === 'h2') newText = `<h2>${selected}</h2>`;
+    else if (tag === 'h3') newText = `<h3>${selected}</h3>`;
     else if (tag === 'p') newText = `<p>${selected}</p>`;
+    else if (tag === 'b') newText = `<b>${selected}</b>`;
+    else if (tag === 'i') newText = `<i>${selected}</i>`;
+    else if (tag === 'u') newText = `<u>${selected}</u>`;
+    else if (tag === 'a') newText = `<a href="#" class="text-blue-400 hover:underline">${selected}</a>`;
+    else if (tag === 'ul') newText = `<ul class="list-disc ml-6 my-4">\n<li>${selected}</li>\n</ul>`;
+    else if (tag === 'li') newText = `<li>${selected}</li>`;
+    else if (tag === 'br') newText = `<br />`;
     else if (tag === 'img') newText = `<img src="URL" alt="opis" class="rounded-xl my-4" />`;
-    else if (tag === 'style') newText = `<style>\n  .custom-class {\n    color: #22d3ee;\n  }\n</style>`;
+    else if (tag === 'div') newText = `<div class="my-4 p-4 bg-slate-800 rounded-xl">${selected}</div>`;
+    else if (tag === 'span') newText = `<span class="text-cyan-400">${selected}</span>`;
+    else if (tag === 'style') {
+      alert('Style tags are not allowed for security reasons. Use inline styles or CSS classes instead.');
+      return;
+    }
     
     setFormData({ ...formData, content: before + newText + after });
   };
@@ -248,7 +260,7 @@ export default function AdminArticlesPage() {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center bg-slate-900/80 p-2 rounded-2xl border border-slate-800">
                     <div className="flex gap-2">
-                      {['h2', 'p', 'b', 'i', 'img', 'style'].map(tag => (
+                      {['h1', 'h2', 'h3', 'p', 'b', 'i', 'u', 'a', 'ul', 'li', 'br', 'img', 'div', 'span', 'style'].map(tag => (
                         <button key={tag} type="button" onClick={() => insertTag(tag)} className="px-4 py-2 bg-slate-800 rounded-xl hover:bg-blue-600 transition-all text-[10px] font-black uppercase tracking-widest">{tag}</button>
                       ))}
                     </div>

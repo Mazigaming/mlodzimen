@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { hashPassword } from '@/lib/auth/password';
 import { generateToken, setAuthCookie } from '@/lib/auth/jwt';
 import { isRateLimited } from '@/lib/security/shield';
+import { sendVerificationEmail, generateVerificationToken } from '@/lib/email';
 import { z } from 'zod';
 import { apiError, apiResponse, ApiError } from '@/lib/api-utils';
 
@@ -32,6 +33,7 @@ export async function POST(request: NextRequest) {
     }
 
     const hashedPassword = await hashPassword(password);
+    const verificationToken = generateVerificationToken();
 
     const user = await prisma.user.create({
       data: {
@@ -39,6 +41,7 @@ export async function POST(request: NextRequest) {
         name,
         password: hashedPassword,
         role,
+        verificationToken,
       },
       select: {
         id: true,
@@ -47,13 +50,20 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    const token = generateToken(user.id, user.email, user.role);
-    await setAuthCookie(token);
+    // Send verification email
+    const emailSent = await sendVerificationEmail(email, verificationToken);
 
-    return apiResponse({ 
-      userId: user.id, 
-      role: user.role, 
-      message: 'Zarejestrowano pomyślnie' 
+    if (!emailSent && process.env.NODE_ENV === 'production') {
+      // In production, if email fails, delete the user and return error
+      await prisma.user.delete({ where: { id: user.id } });
+      throw new ApiError('Nie udało się wysłać emaila weryfikacyjnego. Spróbuj ponownie.', 500);
+    }
+
+    return apiResponse({
+      userId: user.id,
+      role: user.role,
+      message: 'Zarejestrowano pomyślnie. Sprawdź swoją skrzynkę email i zweryfikuj konto.',
+      emailSent
     }, 201);
   } catch (error) {
     return apiError(error);

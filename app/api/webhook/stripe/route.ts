@@ -23,12 +23,21 @@ export async function POST(req: NextRequest) {
   // Handle successful checkout
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as any;
-    const { userId, courseId, paidAmount } = session.metadata;
+    const { userId, courseId, paidAmount, couponCode, couponCreatorId } = session.metadata;
 
     if (userId && courseId) {
       try {
         await prisma.$transaction(async (tx) => {
           // 1. Create enrollment
+          const enrollmentData: any = {
+            userId,
+            courseId,
+            status: 'active',
+            paidAmount: parseFloat(paidAmount),
+            couponCode: couponCode || null,
+            couponCreatorId: couponCreatorId || null,
+          };
+          
           await tx.enrollment.upsert({
             where: {
               userId_courseId: {
@@ -36,21 +45,17 @@ export async function POST(req: NextRequest) {
                 courseId,
               },
             },
-            update: {
-              status: 'active',
-              paidAmount: parseFloat(paidAmount),
-            },
-            create: {
-              userId,
-              courseId,
-              status: 'active',
-              paidAmount: parseFloat(paidAmount),
-            },
+            update: enrollmentData,
+            create: enrollmentData,
           });
 
-          // 2. We'll generate the payout record automatically using our Payout service logic
-          // (which calculates the 10%/90% split when the admin processes it)
-          // The current system uses Payout Processed flag on enrollment
+          // 2. Update coupon usage if a coupon was used
+          if (couponCode) {
+            await tx.coupon.update({
+              where: { code: couponCode },
+              data: { usedCount: { increment: 1 } }
+            });
+          }
         });
 
         console.log(`User ${userId} successfully enrolled in course ${courseId}`);

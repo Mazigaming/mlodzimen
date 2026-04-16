@@ -3,24 +3,27 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id          String       @id @default(cuid())
-  email       String       @unique
-  name        String
-  nickname    String?
-  password    String
-  role        String       @default("student") // student, mentor, admin
-  avatar      String?
-  isVerified  Boolean      @default(false)
-  courses     Course[]     @relation("MentorCourses")
-  enrollments Enrollment[]
-  payouts     Payout[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id               String       @id @default(cuid())
+  email            String       @unique
+  name             String
+  nickname         String?
+  password         String
+  role             String       @default("student")
+  avatar           String?
+  isVerified       Boolean      @default(false)
+  isActive         Boolean      @default(true)
+  verificationToken String?
+  courses          Course[]     @relation("MentorCourses")
+  enrollments      Enrollment[]
+  payouts          Payout[]
+  coupons          Coupon[]     @relation("UserCoupons")
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
 }
 
 model Course {
@@ -59,9 +62,9 @@ model Module {
 model Lesson {
   id          String   @id @default(cuid())
   title       String
-  description String?  // Specific video/lesson description
+  description String?
   videoUrl    String?
-  content     String?  // Long form text/markdown
+  content     String?
   order       Int      @default(0)
   moduleId    String
   module      Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
@@ -77,27 +80,33 @@ model Enrollment {
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   courseId        String
   course          Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  status          String   @default("active") // active, completed, refunded
+  status          String   @default("active")
   paidAmount      Float    @default(0)
   payoutProcessed Boolean  @default(false)
+  couponId        String?
+  couponCode      String?
+  couponCreatorId String?
   createdAt       DateTime @default(now())
-  
+
   @@unique([userId, courseId])
 }
 
 model Coupon {
-  id             String    @id @default(cuid())
-  code           String    @unique
-  discountType   String    @default("fixed") // fixed (PLN) or percent (%)
-  discountValue  Float
-  maxUses        Int?      @default(0) // 0 = unlimited
-  usedCount      Int       @default(0)
-  expiresAt      DateTime?
-  isActive       Boolean   @default(true)
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  id            String    @id @default(cuid())
+  code          String    @unique
+  discountType  String    @default("fixed")
+  discountValue Float
+  maxUses       Int?      @default(0)
+  usedCount     Int       @default(0)
+  expiresAt     DateTime?
+  isActive      Boolean   @default(true)
+  creatorId     String
+  creator       User      @relation("UserCoupons", fields: [creatorId], references: [id], onDelete: Cascade)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   @@index([code])
+  @@index([creatorId])
 }
 
 model Article {
@@ -122,7 +131,7 @@ model GlobalConfig {
   contactEmail    String   @default("kontakt@mlodzimentorzy.pl")
   maintenanceMode Boolean  @default(false)
   bannerMessage   String?
-  platformFee     Float    @default(100.0) // Platform owner gets 100 PLN per course
+  platformFee     Float    @default(100.0)
   updatedAt       DateTime @updatedAt
 }
 
@@ -131,7 +140,7 @@ model Payout {
   mentorId  String
   mentor    User     @relation(fields: [mentorId], references: [id], onDelete: Cascade)
   amount    Float
-  status    String   @default("pending") // pending, paid, rejected
+  status    String   @default("pending")
   notes     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

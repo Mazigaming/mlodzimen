@@ -35,12 +35,26 @@ export async function GET(_request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getAuthSession();
-    if (!await isAdmin(session)) throw new ApiError('Brak uprawnień', 403);
+    if (!session) throw new ApiError('Brak autoryzacji', 401);
 
     const body = await request.json();
     
     // Legacy action support
-    if (body.action === 'list') return GET(request);
+    if (body.action === 'list') {
+      // Only admins can list all coupons
+      if (session.role === 'admin' || session.email === 'admin@admin.com') {
+        const coupons = await prisma.coupon.findMany({
+          orderBy: { createdAt: 'desc' }
+        });
+        return apiResponse({ coupons });
+      }
+      // Non-admins can only see their own coupons
+      const coupons = await prisma.coupon.findMany({
+        where: { creatorId: session.userId },
+        orderBy: { createdAt: 'desc' }
+      });
+      return apiResponse({ coupons });
+    }
     
     const data = CouponSchema.parse(body);
 
@@ -49,6 +63,7 @@ export async function POST(request: NextRequest) {
         ...data,
         code: data.code.toUpperCase(),
         expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
+        creatorId: session.userId, // Track who created the coupon
       }
     });
 

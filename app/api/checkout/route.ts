@@ -39,15 +39,23 @@ export async function POST(request: NextRequest) {
       throw new ApiError('Jesteś już zapisany na ten kurs', 400);
     }
 
+    // Calculate final price with optional coupon
+    // New payout logic (applied in admin payouts):
+    // - Normal sale: 15% platform, 85% mentor
+    // - Coupon sale: 5% platform, 75% mentor (discount absorbed by both)
     let finalPrice = course.price;
 
     // Optional coupon validation
+    let couponCreatorId: string | null = null;
     if (couponCode) {
       const coupon = await prisma.coupon.findUnique({
         where: { code: couponCode },
       });
 
       if (coupon && coupon.isActive && (coupon.expiresAt === null || coupon.expiresAt > new Date())) {
+        // Store the creator ID for affiliate payout tracking (using 'any' to bypass type check)
+        couponCreatorId = (coupon as any).creatorId || null;
+        
         if (coupon.discountType === 'percent') {
           finalPrice = Math.max(0, course.price * (1 - coupon.discountValue / 100));
         } else if (coupon.discountType === 'fixed') {
@@ -82,6 +90,7 @@ export async function POST(request: NextRequest) {
         userId: session.userId,
         courseId: courseId,
         couponCode: couponCode || '',
+        couponCreatorId: couponCreatorId || '',
         paidAmount: finalPrice.toString(),
       },
       customer_email: session.email,
