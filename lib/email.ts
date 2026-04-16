@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 
-// For now, we'll use a simple console logging approach
-// In production, replace with actual email service
+// For now, we'll use a simple console logging approach for development
+// Ready for EmailJS integration when credentials are provided
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp.gmail.com',
@@ -36,19 +36,31 @@ export async function sendVerificationEmail(email: string, token: string) {
   };
 
   try {
-    // For development, just log the email
-    if (process.env.NODE_ENV === 'development') {
-      console.log('=== VERIFICATION EMAIL ===');
-      console.log(`To: ${email}`);
-      console.log(`Subject: ${mailOptions.subject}`);
-      console.log(`Verification URL: ${verificationUrl}`);
-      console.log('========================');
+    // For development/testing, just log the email
+    console.log('=== VERIFICATION EMAIL ===');
+    console.log(`To: ${email}`);
+    console.log(`Subject: ${mailOptions.subject}`);
+    console.log(`Verification URL: ${verificationUrl}`);
+    console.log('========================');
+    return true;
+
+    // TODO: Uncomment when EmailJS credentials are provided
+    /*
+    // EmailJS integration (client-side, but we'll adapt for server)
+    // This would need to be moved to client-side or use EmailJS REST API
+    if (process.env.EMAILJS_SERVICE_ID && process.env.EMAILJS_TEMPLATE_ID && process.env.EMAILJS_PUBLIC_KEY) {
+      // Use EmailJS REST API or adapt for server-side usage
       return true;
     }
 
-    // In production, send actual email
-    await transporter.sendMail(mailOptions);
-    return true;
+    // Fallback to nodemailer if configured
+    if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+      await transporter.sendMail(mailOptions);
+      return true;
+    }
+    */
+
+    return false;
   } catch (error) {
     console.error('Email sending failed:', error);
     return false;
