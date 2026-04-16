@@ -3,7 +3,7 @@ import nodemailer from 'nodemailer';
 // For now, we'll use a simple console logging approach
 // In production, replace with actual email service
 
-const transporter = nodemailer.createTransporter({
+const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp.gmail.com',
   port: parseInt(process.env.SMTP_PORT || '587'),
   secure: false,
