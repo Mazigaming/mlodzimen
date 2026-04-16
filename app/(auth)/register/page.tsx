@@ -73,13 +73,13 @@ function RegisterForm() {
     <div className="relative z-10">
       <motion.div variants={itemVariants} className="text-center space-y-6 mb-12">
         <span className="speech-bubble inline-block">
-          Cześć! 👋
+          Witamy! 👋
         </span>
         <h1 className="text-5xl md:text-7xl font-black text-white">
           <span className="text-gradient-warm">Dołącz</span> do nas
         </h1>
         <p className="text-xl text-gray-400">
-          Wybierz swoją rolę i zacznij swoją przygodę
+          Wybierz postać i zacznij swoją przygodę 🧙
         </p>
       </motion.div>
 

@@ -58,22 +58,17 @@ export default function ContactPage() {
                 {
                   icon: '📧',
                   title: 'Email',
-                  content: 'contact@mlodzimentorzy.pl',
+                  content: 'mlodzimentorzy@gmail.com',
                 },
                 {
                   icon: '📞',
                   title: 'Telefon',
-                  content: '+48 XXX XXX XXX',
-                },
-                {
-                  icon: '📍',
-                  title: 'Adres',
-                  content: 'ul. Przykładowa 1, 00-001 Warszawa',
+                  content: '+48 729 969 667 / +48 789 303 588',
                 },
                 {
                   icon: '⏰',
                   title: 'Godziny',
-                  content: 'Pn-Pt: 9:00-17:00',
+                  content: 'Pn-Pt: 8:00-23:00',
                 },
               ].map((item) => (
                 <motion.div

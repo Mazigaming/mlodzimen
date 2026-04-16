@@ -70,7 +70,7 @@ export default function ArticlesPage() {
             Edukacja Okiem <span className="text-gradient-warm">Młodych</span>
           </h1>
           <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-            Artykuły i manifesty od naszych mentorów na temat przyszłości edukacji
+            Artykuły i przemyślenia naszej społeczności na temat przyszłości edukacji
           </p>
         </motion.div>
 

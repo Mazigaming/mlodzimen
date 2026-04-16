@@ -100,28 +100,25 @@ export default function MentoringPage() {
           <h1 className="text-5xl md:text-7xl font-black text-white">
             Dziel się <span className="text-gradient-warm">Wiedzą</span>
           </h1>
-          <p className="text-xl text-gray-400">
-            Podziel się swoją wiedzą i zarabiaj nauczając innych
-          </p>
         </motion.div>
 
         {/* Benefits */}
         <motion.div variants={containerVariants} className="grid md:grid-cols-2 gap-6 mb-16">
           {[
             {
-              title: 'Elastyczne Harmonogramy',
-              description: 'Udzielaj lekcji w swoim własnym tempie',
-              icon: '⏰',
-            },
-            {
-              title: 'Zarabiaj Pasywnie',
-              description: 'Twoje kursy mogą zarabiać dla Ciebie 24/7',
-              icon: '💰',
-            },
-            {
               title: 'Buduj Reputację',
               description: 'Bądź ekspertem w swojej dziedzinie',
               icon: '⭐',
+            },
+            {
+              title: 'Zarabiaj pasywnie i na uczciwej stawce',
+              description: 'Twoje kursy mogą zarabiać dla Ciebie 24/7. Dostajesz między 70% a 85% od sprzedaży!',
+              icon: '💰',
+            },
+            {
+              title: 'Wypłacaj kiedy chcesz',
+              description: 'Wysyłamy pieniądze do 48h roboczych.',
+              icon: '⏰',
             },
             {
               title: 'Dedykowane Wsparcie',
