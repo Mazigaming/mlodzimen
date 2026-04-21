@@ -60,8 +60,8 @@ export default function MentoringPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          specialization: formData.get('specialization'),
-          experience: formData.get('experience'),
+          specialization: 'General', // Default value since field removed
+          experience: 0, // Default value since field removed
           aboutYou: formData.get('aboutYou'),
           aboutCourse: formData.get('aboutCourse'),
         }),
@@ -156,32 +156,6 @@ export default function MentoringPage() {
         >
           <h2 className="text-3xl font-black text-white mb-8">Aplikuj Teraz</h2>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="block text-sm font-bold text-gray-300 mb-2 uppercase tracking-wide">
-                Dziedzina specjalizacji
-              </label>
-              <input
-                name="specialization"
-                type="text"
-                placeholder="np. Python, Web Development, itp."
-                className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-500 transition-all"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-bold text-gray-300 mb-2 uppercase tracking-wide">
-                Lata doświadczenia
-              </label>
-              <input
-                name="experience"
-                type="number"
-                placeholder="np. 3"
-                className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-500 transition-all"
-                required
-              />
-            </div>
-
             <div>
               <label className="block text-sm font-bold text-gray-300 mb-2 uppercase tracking-wide">
                 O Tobie
