@@ -70,3 +70,52 @@ export async function sendVerificationEmail(email: string, token: string) {
 export function generateVerificationToken(): string {
   return Math.random().toString(36).substring(2) + Date.now().toString(36);
 }
+
+export async function sendPasswordResetEmail(email: string, token: string) {
+  const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?token=${token}`;
+
+  const mailOptions = {
+    from: process.env.SMTP_FROM || 'noreply@mlodzimentorzy.pl',
+    to: email,
+    subject: 'Resetowanie hasła - Młodzi Mentorzy',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2>Resetowanie hasła</h2>
+        <p>Otrzymaliśmy prośbę o resetowanie hasła do Twojego konta w Młodzi Mentorzy.</p>
+        <p>Aby zresetować hasło, kliknij w poniższy link:</p>
+        <a href="${resetUrl}" style="display: inline-block; background-color: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 16px 0;">
+          Resetuj hasło
+        </a>
+        <p>Jeśli przycisk nie działa, skopiuj i wklej poniższy link do przeglądarki:</p>
+        <p style="word-break: break-all; color: #666;">${resetUrl}</p>
+        <p>Link wygaśnie za 1 godzinę.</p>
+        <p>Jeśli nie prosiłeś o reset hasła, zignoruj tę wiadomość.</p>
+        <p>Pozdrawienia,<br>Zespół Młodzi Mentorzy</p>
+      </div>
+    `,
+  };
+
+  try {
+    // For development/testing, just log the email
+    console.log('=== PASSWORD RESET EMAIL ===');
+    console.log(`To: ${email}`);
+    console.log(`Subject: ${mailOptions.subject}`);
+    console.log(`Reset URL: ${resetUrl}`);
+    console.log('==============================');
+    return true;
+
+    // TODO: Uncomment when EmailJS or SMTP is configured
+    /*
+    // EmailJS integration or SMTP
+    if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+      await transporter.sendMail(mailOptions);
+      return true;
+    }
+    */
+
+    return false;
+  } catch (error) {
+    console.error('Password reset email sending failed:', error);
+    return false;
+  }
+}
