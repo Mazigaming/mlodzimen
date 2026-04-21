@@ -16,9 +16,11 @@ model User {
   role             String       @default("student")
   avatar           String?
   isVerified       Boolean      @default(false)
-  isActive         Boolean      @default(true)
-  verificationToken String?
-  courses          Course[]     @relation("MentorCourses")
+  isActive             Boolean      @default(true)
+  verificationToken    String?
+  passwordResetToken   String?
+  passwordResetExpires DateTime?
+  courses              Course[]    @relation("MentorCourses")
   enrollments      Enrollment[]
   payouts          Payout[]
   coupons          Coupon[]     @relation("UserCoupons")
