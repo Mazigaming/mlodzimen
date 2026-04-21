@@ -25,10 +25,20 @@ export default function DashboardPage() {
   const [mentorStats, setMentorStats] = useState<any>(null);
   const [mentorPayouts, setMentorPayouts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
 
   useEffect(() => {
     fetchSession();
-  }, []);
+    // Check for payment success
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('success') === 'true') {
+      setPaymentSuccess(true);
+      // Clear URL parameters after showing success message
+      setTimeout(() => {
+        router.replace('/dashboard');
+      }, 5000);
+    }
+  }, [router]);
 
   async function fetchSession() {
     try {
@@ -100,6 +110,24 @@ export default function DashboardPage() {
         animate="visible"
         className="container mx-auto max-w-6xl relative z-10"
       >
+        {/* Payment Success Message */}
+        {paymentSuccess && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            role="alert"
+            aria-live="polite"
+            className="mb-8 p-6 bg-green-500/20 border border-green-500/50 text-green-200 rounded-2xl flex items-center gap-4"
+          >
+            <div className="text-3xl">✅</div>
+            <div>
+              <h3 className="font-black text-lg text-green-200 mb-1">Płatność zakończona pomyślnie!</h3>
+              <p className="text-green-300/80">Zostałeś zapisany na kurs. Możesz teraz rozpocząć naukę.</p>
+            </div>
+          </motion.div>
+        )}
+
         {/* Header */}
         <motion.div variants={itemVariants} className="flex justify-between items-start mb-16">
           <div>
