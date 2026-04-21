@@ -168,12 +168,19 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p className="text-center text-gray-400">
-            Nie masz konta?{' '}
-            <Link href="/register" className="text-blue-400 hover:text-blue-300 font-bold transition-colors focus:underline outline-none">
-              Zarejestruj się
-            </Link>
-          </p>
+          <div className="space-y-2">
+            <p className="text-center">
+              <Link href="/forgot-password" className="text-blue-400 hover:text-blue-300 text-sm transition-colors focus:underline outline-none">
+                Zapomniałeś hasła?
+              </Link>
+            </p>
+            <p className="text-center text-gray-400">
+              Nie masz konta?{' '}
+              <Link href="/register" className="text-blue-400 hover:text-blue-300 font-bold transition-colors focus:underline outline-none">
+                Zarejestruj się
+              </Link>
+            </p>
+          </div>
         </div>
       </motion.div>
     </div>
