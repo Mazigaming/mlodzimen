@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+// import nodemailer from 'nodemailer';
 
 // For now, we'll use a simple console logging approach for development
 // Ready for EmailJS integration when credentials are provided
