@@ -2,7 +2,6 @@
 
 import { motion } from 'framer-motion';
 import { useState, FormEvent, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -21,7 +20,6 @@ export default function MentoringPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
-  const router = useRouter();
 
   useEffect(() => {
     checkAuth();
