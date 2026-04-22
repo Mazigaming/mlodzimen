@@ -4,7 +4,6 @@ import { prisma } from '@/lib/prisma';
 
 export async function middleware(request: NextRequest) {
   // Only check on server-side requests
-  const start = Date.now();
   
   // Skip API routes and static files
   if (
