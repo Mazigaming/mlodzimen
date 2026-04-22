@@ -38,8 +38,13 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // Get base URL for email links
+    const host = request.headers.get('host') || 'localhost:3000';
+    const protocol = host.includes('localhost') ? 'http' : 'https';
+    const baseUrl = `${protocol}://${host}`;
+
     // Send reset email
-    const emailSent = await sendPasswordResetEmail(user.email, resetToken);
+    const emailSent = await sendPasswordResetEmail(user.email, resetToken, baseUrl);
 
     if (!emailSent) {
       console.error('Failed to send password reset email');

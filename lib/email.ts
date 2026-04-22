@@ -13,8 +13,9 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export async function sendVerificationEmail(email: string, token: string) {
-  const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${token}`;
+export async function sendVerificationEmail(email: string, token: string, baseUrl?: string) {
+  const appUrl = baseUrl || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const verificationUrl = `${appUrl}/verify-email?token=${token}`;
 
   const mailOptions = {
     from: process.env.SMTP_FROM || 'noreply@mlodzimentorzy.pl',
@@ -71,8 +72,9 @@ export function generateVerificationToken(): string {
   return Math.random().toString(36).substring(2) + Date.now().toString(36);
 }
 
-export async function sendPasswordResetEmail(email: string, token: string) {
-  const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?token=${token}`;
+export async function sendPasswordResetEmail(email: string, token: string, baseUrl?: string) {
+  const appUrl = baseUrl || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const resetUrl = `${appUrl}/reset-password?token=${token}`;
 
   const mailOptions = {
     from: process.env.SMTP_FROM || 'noreply@mlodzimentorzy.pl',

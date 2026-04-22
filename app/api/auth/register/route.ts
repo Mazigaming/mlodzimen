@@ -50,8 +50,13 @@ export async function POST(request: NextRequest) {
       }
     });
 
+    // Get base URL for email links
+    const host = request.headers.get('host') || 'localhost:3000';
+    const protocol = host.includes('localhost') ? 'http' : 'https';
+    const baseUrl = `${protocol}://${host}`;
+
     // Send verification email
-    const emailSent = await sendVerificationEmail(email, verificationToken);
+    const emailSent = await sendVerificationEmail(email, verificationToken, baseUrl);
 
     if (!emailSent && process.env.NODE_ENV === 'production') {
       // In production, if email fails, delete the user and return error
