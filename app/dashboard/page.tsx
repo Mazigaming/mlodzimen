@@ -32,13 +32,37 @@ export default function DashboardPage() {
     // Check for payment success
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('success') === 'true') {
-      setPaymentSuccess(true);
-      // Clear URL parameters after showing success message
-      setTimeout(() => {
-        router.replace('/dashboard');
-      }, 5000);
+      const courseId = urlParams.get('courseId');
+      handlePaymentSuccess(courseId);
     }
   }, [router]);
+
+  async function handlePaymentSuccess(courseId: string | null) {
+    if (!courseId) return;
+
+    try {
+      // Try to create enrollment as fallback if webhook didn't work
+      const response = await fetch('/api/checkout/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ courseId })
+      });
+
+      if (response.ok) {
+        setPaymentSuccess(true);
+      }
+    } catch (error) {
+      console.error('Payment verification failed:', error);
+      // Still show success message even if verification fails
+      setPaymentSuccess(true);
+    }
+
+    // Clear URL parameters after showing success message
+    setTimeout(() => {
+      router.replace('/dashboard');
+    }, 5000);
+  }
 
   async function fetchSession() {
     try {

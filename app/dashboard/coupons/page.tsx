@@ -242,7 +242,7 @@ export default function UserCouponsPage() {
             <li>• Stwórz swój unikalny kod rabatowy (10% zniżki)</li>
             <li>• Podziel się nim ze znajomymi</li>
             <li>• Gdy ktoś kupi kurs z Twoim kodem:</li>
-            <li className="ml-4">- Ty dostajesz <span className="text-green-400 font-bold">20%</span> prowizji</li>
+            <li className="ml-4">- Ty dostajesz <span className="text-green-400 font-bold">10%</span> prowizji</li>
             <li className="ml-4">- Mentor dostaje <span className="text-yellow-400 font-bold">75%</span></li>
             <li className="ml-4">- Platforma bierze <span className="text-gray-500 font-bold">5%</span></li>
           </ul>
