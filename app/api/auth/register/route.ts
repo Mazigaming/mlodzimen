@@ -1,7 +1,6 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { hashPassword } from '@/lib/auth/password';
-import { generateToken, setAuthCookie } from '@/lib/auth/jwt';
 import { isRateLimited } from '@/lib/security/shield';
 import { sendVerificationEmail, generateVerificationToken } from '@/lib/email';
 import { z } from 'zod';
