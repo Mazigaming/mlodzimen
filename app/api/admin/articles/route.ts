@@ -1,17 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { verifyToken } from '@/lib/auth/jwt';
+import { getAuthSession } from '@/lib/auth/jwt';
 
 export async function POST(request: NextRequest) {
   try {
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader) return NextResponse.json({ error: 'Brak autoryzacji' }, { status: 401 });
-
-    const token = authHeader.replace('Bearer ', '');
-    const decoded = verifyToken(token);
-    
-    // Only main admin or mentors can manage articles (for now let's keep it strict to admin for management)
-    if (!decoded || decoded.email !== 'admin@admin.com') {
+    const session = await getAuthSession();
+    if (!session || session.email !== 'admin@admin.com') {
       return NextResponse.json({ error: 'Brak uprawnień administratora' }, { status: 403 });
     }
 

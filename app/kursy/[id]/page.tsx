@@ -1,12 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 
 export default function CourseDetailPage() {
   const { id } = useParams();
+  const router = useRouter();
   const [course, setCourse] = useState<any>(null);
   const [hasAccess, setHasAccess] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -14,6 +15,7 @@ export default function CourseDetailPage() {
   const [activeLesson, setActiveLesson] = useState<any>(null);
   const [couponCode, setCouponCode] = useState('');
   const [couponError, setCouponError] = useState('');
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     fetchCourse();
@@ -21,6 +23,14 @@ export default function CourseDetailPage() {
 
   async function fetchCourse() {
     try {
+      // Fetch user session
+      const userRes = await fetch('/api/auth/me', { credentials: 'include' });
+      if (userRes.ok) {
+        const userData = await userRes.json();
+        setUser(userData.user);
+      }
+
+      // Fetch course
       const res = await fetch(`/api/courses/${id}`, { credentials: 'include' });
       if (res.ok) {
         const data = await res.json();
@@ -77,9 +87,21 @@ export default function CourseDetailPage() {
       <div className="absolute top-0 left-0 w-full h-[600px] bg-gradient-to-b from-blue-600/5 to-transparent pointer-events-none" />
       
       <div className="container mx-auto max-w-7xl relative z-10">
-        <Link href="/kursy" className="inline-flex items-center gap-2 text-gray-500 hover:text-white transition-all mb-8 font-black text-xs uppercase tracking-widest group">
-          <span className="group-hover:-translate-x-1 transition-transform">←</span> Galeria Kursów
-        </Link>
+        <div className="flex justify-between items-center mb-8">
+          <Link href="/kursy" className="inline-flex items-center gap-2 text-gray-500 hover:text-white transition-all font-black text-xs uppercase tracking-widest group">
+            <span className="group-hover:-translate-x-1 transition-transform">←</span> Galeria Kursów
+          </Link>
+
+          {/* Edit button for course owner or admin */}
+          {user && course && (user.id === course.mentorId || user.role === 'admin' || user.email === 'admin@admin.com') && (
+            <button
+              onClick={() => router.push(`/dashboard/edit-course/${id}`)}
+              className="px-6 py-3 bg-blue-600 text-white rounded-2xl font-black text-sm hover:bg-blue-500 transition-all shadow-lg shadow-blue-600/20"
+            >
+              ✏️ Edytuj Kurs
+            </button>
+          )}
+        </div>
 
         <div className="grid lg:grid-cols-3 gap-12">
           {/* Main Content */}

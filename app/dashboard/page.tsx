@@ -232,17 +232,25 @@ export default function DashboardPage() {
                       <h3 className="text-xl font-black text-white mb-3 line-clamp-1">{course.title}</h3>
                       <p className="text-gray-500 mb-6 text-sm line-clamp-2">{course.description}</p>
                       
-                      <div className="flex items-center justify-between pt-6 border-t border-slate-800">
-                        <div className="text-xs font-bold text-gray-400">
-                          <span className="text-white">{course._count.enrollments}</span> kursantów
-                        </div>
-                        <Link 
-                          href={`/kursy/${course.id}`}
-                          className="text-sm font-black text-blue-400 hover:text-white transition-colors"
-                        >
-                          ZARZĄDZAJ →
-                        </Link>
-                      </div>
+                       <div className="flex items-center justify-between pt-6 border-t border-slate-800">
+                         <div className="text-xs font-bold text-gray-400">
+                           <span className="text-white">{course._count.enrollments}</span> kursantów
+                         </div>
+                         <div className="flex gap-3">
+                           <Link
+                             href={`/kursy/${course.id}`}
+                             className="text-sm font-black text-blue-400 hover:text-white transition-colors"
+                           >
+                             ZARZĄDZAJ →
+                           </Link>
+                           <Link
+                             href={`/dashboard/edit-course/${course.id}`}
+                             className="text-sm font-black text-cyan-400 hover:text-white transition-colors"
+                           >
+                             ✏️ EDYTUJ
+                           </Link>
+                         </div>
+                       </div>
                     </div>
                   ))}
                 </div>
@@ -320,12 +328,22 @@ export default function DashboardPage() {
                         </div>
                         <div className="flex items-center justify-between">
                           <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">0% ukończono</span>
-                          <Link 
-                            href={`/kursy/${enrollment.course.id}`}
-                            className="px-6 py-2.5 bg-cyan-600 text-white rounded-xl text-xs font-black hover:bg-cyan-500 transition-all"
-                          >
-                            KONTYNUUJ →
-                          </Link>
+                         <div className="flex gap-2">
+                           <Link
+                             href={`/kursy/${enrollment.course.id}`}
+                             className="text-sm font-black text-blue-400 hover:text-white transition-colors"
+                           >
+                             KONTYNUUJ →
+                           </Link>
+                           {user.role === 'mentor' && user.id === enrollment.course.mentorId && (
+                             <Link
+                               href={`/dashboard/edit-course/${enrollment.course.id}`}
+                               className="text-sm font-black text-cyan-400 hover:text-white transition-colors"
+                             >
+                               ✏️ EDYTUJ
+                             </Link>
+                           )}
+                         </div>
                         </div>
                       </div>
                     </div>
