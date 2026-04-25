@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { promises as fs } from 'fs';
-import path from 'path';
 
 export async function middleware(request: NextRequest) {
   // Only check on server-side requests
@@ -56,7 +55,7 @@ export async function middleware(request: NextRequest) {
 
     // Check maintenance mode from file flag
     // Admin panel can create/delete this file to toggle maintenance mode
-    const maintenanceFile = path.join(process.cwd(), '.maintenance');
+    const maintenanceFile = '/root/mlodzimen/.maintenance';
     let maintenanceMode = false;
 
     try {
