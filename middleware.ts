@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { promises as fs } from 'fs';
 
 export async function middleware(request: NextRequest) {
   // Only check on server-side requests
@@ -53,19 +52,22 @@ export async function middleware(request: NextRequest) {
       }
     }
 
-    // Check maintenance mode from file flag
-    // Admin panel can create/delete this file to toggle maintenance mode
-    const maintenanceFile = '/root/mlodzimen/.maintenance';
+    // Check maintenance mode by fetching a status endpoint
     let maintenanceMode = false;
 
     try {
-      await fs.access(maintenanceFile);
-      maintenanceMode = true;
-      console.log('MAINTENANCE MODE: ACTIVE');
+      const response = await fetch('https://mlodzimentorzy.pl/api/maintenance-status', {
+        method: 'GET',
+        headers: { 'User-Agent': 'middleware-check' }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        maintenanceMode = data.maintenanceMode || false;
+      }
     } catch {
-      // File doesn't exist, maintenance mode is off
+      // If API fails, default to allowing access
       maintenanceMode = false;
-      console.log('MAINTENANCE MODE: INACTIVE');
     }
 
     // If maintenance mode is disabled, allow access
