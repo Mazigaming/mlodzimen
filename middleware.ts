@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { promises as fs } from 'fs';
+import path from 'path';
 
 export async function middleware(request: NextRequest) {
-  console.log(`[MIDDLEWARE] Processing request: ${request.nextUrl.pathname}`);
-
   // Only check on server-side requests
 
   // Skip API routes and static files
@@ -55,22 +54,28 @@ export async function middleware(request: NextRequest) {
       }
     }
 
-    // Get config from database to check maintenance mode
-    const config = await prisma.globalConfig.findUnique({
-      where: { id: 'config' },
-    });
+    // Check maintenance mode from file flag
+    // Admin panel can create/delete this file to toggle maintenance mode
+    const maintenanceFile = path.join(process.cwd(), '.maintenance');
+    let maintenanceMode = false;
+
+    try {
+      await fs.access(maintenanceFile);
+      maintenanceMode = true;
+    } catch {
+      // File doesn't exist, maintenance mode is off
+      maintenanceMode = false;
+    }
 
     // If maintenance mode is disabled, allow access
-    if (!config?.maintenanceMode) {
+    if (!maintenanceMode) {
       return NextResponse.next();
     }
 
     // Maintenance mode is enabled - redirect to maintenance page
-    console.log(`[MIDDLEWARE] Maintenance mode active, redirecting to maintenance page`);
     return NextResponse.redirect(new URL('/maintenance', request.url));
-  } catch (error) {
-    // If database is not available, allow access
-    console.log(`[MIDDLEWARE] Error in middleware: ${error}, allowing access`);
+  } catch {
+    // If file check fails, allow access
     return NextResponse.next();
   }
 }

@@ -15,11 +15,11 @@ export function generateToken(userId: string, email: string, role: string): stri
 
 export async function setAuthCookie(token: string) {
   const cookieStore = await cookies();
-  
+
   // Cookie settings for production
   cookieStore.set(AUTH_COOKIE_NAME, token, {
     httpOnly: true,
-    secure: false,
+    secure: process.env.NODE_ENV === 'production', // Secure in production (HTTPS)
     sameSite: 'lax',
     maxAge: 30 * 24 * 60 * 60, // 30 days
     path: '/',
