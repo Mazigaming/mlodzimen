@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { prisma } from '@/lib/prisma';
 
 export async function middleware(request: NextRequest) {
   // Only check on server-side requests
-  
+
   // Skip API routes and static files
   if (
     request.nextUrl.pathname.startsWith('/api') ||
@@ -25,15 +24,21 @@ export async function middleware(request: NextRequest) {
   }
 
   try {
-    // Get config from database
-    const config = await prisma.globalConfig.findUnique({
-      where: { id: 'config' },
-    });
+    // Get user IP address
+    const clientIP = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+                     request.headers.get('x-real-ip') ||
+                     request.headers.get('cf-connecting-ip') ||
+                     '127.0.0.1';
 
-    // If maintenance mode is disabled, allow access
-    if (!config?.maintenanceMode) {
-      return NextResponse.next();
-    }
+    // Allowed IPs (your server IP and any other trusted IPs)
+    const allowedIPs = [
+      '46.247.108.173', // Your VPS IP
+      '127.0.0.1',      // Localhost
+      '::1'             // IPv6 localhost
+    ];
+
+    // Check if IP is allowed
+    const isAllowedIP = allowedIPs.includes(clientIP);
 
     // Check for admin session cookie
     const sessionCookie = request.cookies.get('token');
@@ -52,24 +57,29 @@ export async function middleware(request: NextRequest) {
 
         if (response.ok) {
           const data = await response.json();
-          if (data.user?.role === 'admin') {
+          if (data.user?.role === 'admin' || data.user?.email === 'admin@admin.com') {
             // Admin user - allow access
             return NextResponse.next();
           }
         }
       } catch {
-        // Invalid session - show maintenance page
+        // Invalid session - check IP whitelist
       }
     }
 
-    // Not admin - redirect to maintenance page
+    // Allow access if IP is whitelisted
+    if (isAllowedIP) {
+      return NextResponse.next();
+    }
+
+    // Block access for everyone else - redirect to maintenance page
     return NextResponse.redirect(new URL('/maintenance', request.url));
   } catch {
-    // If database is not available, allow access in development
+    // If database is not available, only allow localhost in development
     if (process.env.NODE_ENV === 'development') {
       return NextResponse.next();
     }
-    // In production, show maintenance page if we can't check config
+    // In production, block access if we can't verify
     return NextResponse.redirect(new URL('/maintenance', request.url));
   }
 }

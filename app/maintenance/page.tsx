@@ -17,8 +17,8 @@ export default function MaintenancePage() {
           
           {/* Description */}
           <p className="text-slate-400 text-lg mb-8 leading-relaxed">
-            Przepraszamy za utrudnienia. Trwają prace nad ulepszeniem platformy. 
-            Niedługo wrócimy z nowymi funkcjami!
+            Przepraszamy za utrudnienia. Platforma jest obecnie dostępna tylko dla administratorów
+            oraz użytkowników z autoryzowanych adresów IP.
           </p>
           
           {/* Admin Login Button */}
@@ -32,7 +32,7 @@ export default function MaintenancePage() {
           
           {/* Additional Info */}
           <p className="text-slate-500 text-sm mt-6">
-            Tylko administratorzy mają dostęp do platformy w trybie konserwacji.
+            Dostęp mają tylko administratorzy oraz użytkownicy z autoryzowanych adresów IP.
           </p>
         </div>
         
