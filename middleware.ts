@@ -59,8 +59,8 @@ export async function middleware(request: NextRequest) {
 
         if (response.ok) {
           const data = await response.json();
-          if (data.user?.role === 'admin' || data.user?.email === 'admin@admin.com') {
-            // Admin user - allow access
+          if (data.user) {
+            // Any authenticated user - allow access
             return NextResponse.next();
           }
         }
