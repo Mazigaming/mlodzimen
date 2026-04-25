@@ -41,7 +41,7 @@ export async function middleware(request: NextRequest) {
     const isAllowedIP = allowedIPs.includes(clientIP);
 
     // Check for admin session cookie
-    const sessionCookie = request.cookies.get('token');
+    const sessionCookie = request.cookies.get('auth_token');
 
     if (sessionCookie) {
       // Try to validate session
