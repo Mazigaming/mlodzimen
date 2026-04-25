@@ -55,8 +55,27 @@ function RegisterForm() {
       });
 
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || data.message || 'Rejestracja nie powiodła się');
+        let errorMessage = 'Rejestracja nie powiodła się';
+
+        try {
+          // Try to parse as JSON
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const data = await response.json();
+            errorMessage = data.error || data.message || errorMessage;
+          } else {
+            // If not JSON, get text response
+            const text = await response.text();
+            console.error('Non-JSON response:', text);
+            errorMessage = 'Wystąpił błąd serwera. Spróbuj ponownie.';
+          }
+        } catch (parseError) {
+          console.error('JSON parse error:', parseError);
+          // If JSON parsing fails, it might be HTML error page
+          errorMessage = 'Wystąpił błąd serwera. Sprawdź połączenie i spróbuj ponownie.';
+        }
+
+        throw new Error(errorMessage);
       }
 
       // No more localStorage - handled by HttpOnly cookie
