@@ -1,10 +1,9 @@
 import { promises as fs } from 'fs';
-import path from 'path';
 
 export async function GET() {
   try {
-    // Check if maintenance file exists
-    const maintenanceFile = path.join(process.cwd(), '.maintenance');
+    // Check if maintenance file exists (use absolute path)
+    const maintenanceFile = '/root/mlodzimen/.maintenance';
 
     try {
       await fs.access(maintenanceFile);
