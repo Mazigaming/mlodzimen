@@ -31,15 +31,19 @@ export async function middleware(request: NextRequest) {
                      request.headers.get('cf-connecting-ip') ||
                      '127.0.0.1';
 
+    console.log(`[MIDDLEWARE] Request from IP: ${clientIP}, Path: ${request.nextUrl.pathname}`);
+
     // Allowed IPs (your server IP and any other trusted IPs)
     const allowedIPs = [
       '46.247.108.173', // Your VPS IP
       '127.0.0.1',      // Localhost
-      '::1'             // IPv6 localhost
+      '::1',            // IPv6 localhost
+      '::ffff:127.0.0.1' // IPv4-mapped IPv6 localhost
     ];
 
     // Check if IP is allowed
     const isAllowedIP = allowedIPs.includes(clientIP);
+    console.log(`[MIDDLEWARE] IP ${clientIP} allowed: ${isAllowedIP}`);
 
     // Check for admin session cookie
     const sessionCookie = request.cookies.get('auth_token');
@@ -51,7 +55,7 @@ export async function middleware(request: NextRequest) {
           new URL('/api/auth/me', request.url).toString(),
           {
             headers: {
-              Cookie: `token=${sessionCookie.value}`,
+              Cookie: `auth_token=${sessionCookie.value}`,
             },
           }
         );
@@ -59,6 +63,7 @@ export async function middleware(request: NextRequest) {
         if (response.ok) {
           const data = await response.json();
           if (data.user?.role === 'admin' || data.user?.email === 'admin@admin.com') {
+            console.log(`[MIDDLEWARE] Admin access granted for ${data.user.email}`);
             // Admin user - allow access
             return NextResponse.next();
           }
@@ -70,10 +75,12 @@ export async function middleware(request: NextRequest) {
 
     // Allow access if IP is whitelisted
     if (isAllowedIP) {
+      console.log(`[MIDDLEWARE] IP ${clientIP} whitelisted - access granted`);
       return NextResponse.next();
     }
 
     // Block access for everyone else - redirect to maintenance page
+    console.log(`[MIDDLEWARE] Access blocked for IP ${clientIP} - redirecting to maintenance`);
     return NextResponse.redirect(new URL('/maintenance', request.url));
   } catch {
     // If database is not available, only allow localhost in development
