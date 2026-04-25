@@ -41,6 +41,7 @@ export async function POST(request: NextRequest) {
         password: hashedPassword,
         role,
         verificationToken,
+        isVerified: true, // Skip email verification - auto-verify users
       },
       select: {
         id: true,
@@ -49,24 +50,20 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Get base URL for email links
+    // Get base URL for email links (for logging purposes)
     const host = request.headers.get('host') || 'localhost:3000';
     const protocol = host.includes('localhost') ? 'http' : 'https';
     const baseUrl = `${protocol}://${host}`;
 
-    // Send verification email
+    // Send verification email (for logging only, not required for login)
     const emailSent = await sendVerificationEmail(email, verificationToken, baseUrl);
 
-    if (!emailSent && process.env.NODE_ENV === 'production') {
-      // In production, if email fails, delete the user and return error
-      await prisma.user.delete({ where: { id: user.id } });
-      throw new ApiError('Nie udało się wysłać emaila weryfikacyjnego. Spróbuj ponownie.', 500);
-    }
+    // Note: We don't delete user if email fails, since verification is not required
 
     return apiResponse({
       userId: user.id,
       role: user.role,
-      message: 'Zarejestrowano pomyślnie. Sprawdź swoją skrzynkę email i zweryfikuj konto.',
+      message: 'Zarejestrowano pomyślnie! Możesz się teraz zalogować.',
       emailSent
     }, 201);
   } catch (error) {

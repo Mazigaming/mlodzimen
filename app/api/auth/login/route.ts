@@ -41,9 +41,10 @@ export async function POST(request: NextRequest) {
       throw new ApiError('Konto zostało dezaktywowane. Skontaktuj się z administratorem.', 403);
     }
 
-    if (!user.isVerified) {
-      throw new ApiError('Konto nie zostało zweryfikowane. Sprawdź swoją skrzynkę email.', 403);
-    }
+    // Email verification no longer required
+    // if (!user.isVerified) {
+    //   throw new ApiError('Konto nie zostało zweryfikowane. Sprawdź swoją skrzynkę email.', 403);
+    // }
 
     const token = generateToken(user.id, user.email, user.role);
     await setAuthCookie(token);
