@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
 export async function middleware(request: NextRequest) {
   // Only check on server-side requests
@@ -24,8 +25,50 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Site is now publicly accessible - no IP restrictions
-  return NextResponse.next();
+  try {
+    // Check for admin session cookie
+    const sessionCookie = request.cookies.get('auth_token');
+
+    if (sessionCookie) {
+      // Try to validate admin session
+      try {
+        const response = await fetch(
+          new URL('/api/auth/me', request.url).toString(),
+          {
+            headers: {
+              Cookie: `auth_token=${sessionCookie.value}`,
+            },
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.user?.role === 'admin' || data.user?.email === 'admin@admin.com') {
+            // Admin user - allow access
+            return NextResponse.next();
+          }
+        }
+      } catch {
+        // Invalid session - continue to maintenance check
+      }
+    }
+
+    // Get config from database to check maintenance mode
+    const config = await prisma.globalConfig.findUnique({
+      where: { id: 'config' },
+    });
+
+    // If maintenance mode is disabled, allow access
+    if (!config?.maintenanceMode) {
+      return NextResponse.next();
+    }
+
+    // Maintenance mode is enabled - redirect to maintenance page
+    return NextResponse.redirect(new URL('/maintenance', request.url));
+  } catch {
+    // If database is not available, allow access
+    return NextResponse.next();
+  }
 }
 
 export const config = {
