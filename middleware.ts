@@ -61,9 +61,11 @@ export async function middleware(request: NextRequest) {
     try {
       await fs.access(maintenanceFile);
       maintenanceMode = true;
+      console.log('MAINTENANCE MODE: ACTIVE');
     } catch {
       // File doesn't exist, maintenance mode is off
       maintenanceMode = false;
+      console.log('MAINTENANCE MODE: INACTIVE');
     }
 
     // If maintenance mode is disabled, allow access
