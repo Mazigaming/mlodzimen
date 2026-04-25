@@ -66,9 +66,11 @@ export async function middleware(request: NextRequest) {
     }
 
     // Maintenance mode is enabled - redirect to maintenance page
+    console.log(`[MIDDLEWARE] Maintenance mode active, redirecting to maintenance page`);
     return NextResponse.redirect(new URL('/maintenance', request.url));
-  } catch {
+  } catch (error) {
     // If database is not available, allow access
+    console.log(`[MIDDLEWARE] Error in middleware: ${error}, allowing access`);
     return NextResponse.next();
   }
 }
