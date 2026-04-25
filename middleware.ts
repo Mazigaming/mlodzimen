@@ -3,6 +3,8 @@ import type { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 export async function middleware(request: NextRequest) {
+  console.log(`[MIDDLEWARE] Processing request: ${request.nextUrl.pathname}`);
+
   // Only check on server-side requests
 
   // Skip API routes and static files
