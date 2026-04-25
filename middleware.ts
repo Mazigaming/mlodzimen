@@ -31,6 +31,8 @@ export async function middleware(request: NextRequest) {
                      request.headers.get('cf-connecting-ip') ||
                      '127.0.0.1';
 
+    console.log(`[MIDDLEWARE] Request to ${request.nextUrl.pathname} from IP: ${clientIP}`);
+
     // Allowed IPs (your server IP and any other trusted IPs)
     const allowedIPs = [
       '46.247.108.173', // Your VPS IP
