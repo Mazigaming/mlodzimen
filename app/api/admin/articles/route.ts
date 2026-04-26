@@ -5,8 +5,8 @@ import { getAuthSession } from '@/lib/auth/jwt';
 export async function POST(request: NextRequest) {
   try {
     const session = await getAuthSession();
-    if (!session || session.email !== 'admin@admin.com') {
-      return NextResponse.json({ error: 'Brak uprawnień administratora' }, { status: 403 });
+    if (!session || (session.role !== 'admin' && session.role !== 'mentor' && session.email !== 'admin@admin.com')) {
+      return NextResponse.json({ error: 'Brak uprawnień' }, { status: 403 });
     }
 
     const body = await request.json().catch(() => ({}));

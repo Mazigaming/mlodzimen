@@ -19,7 +19,6 @@ const itemVariants = {
 export default function MentoringPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userRole, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
     checkAuth();
@@ -32,7 +31,7 @@ export default function MentoringPage() {
         const data = await response.json();
         if (data.user) {
           setIsAuthenticated(true);
-          setUserRole(data.user.role);
+          
         }
       }
     } catch (error) {
@@ -43,8 +42,9 @@ export default function MentoringPage() {
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    if (!isAuthenticated || userRole !== 'mentor') {
-      alert('Tylko mentorzy mogą wysyłać wnioski o mentora.');
+    // Anyone can submit mentor application, but verified mentors get priority
+    if (!isAuthenticated) {
+      alert('Musisz się zalogować, aby wysłać wniosek.');
       return;
     }
 

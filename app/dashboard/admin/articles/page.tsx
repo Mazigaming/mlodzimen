@@ -51,7 +51,7 @@ export default function AdminArticlesPage() {
       const res = await fetch('/api/auth/me', { credentials: 'include' });
       if (res.ok) {
         const data = await res.json();
-        if (data.user && (data.user.role === 'admin' || data.user.email === 'admin@admin.com')) {
+        if (data.user && (data.user.role === 'admin' || data.user.role === 'mentor' || data.user.email === 'admin@admin.com')) {
           setFormData(prev => ({ ...prev, author: data.user.name }));
           fetchArticles();
         } else {
