@@ -726,11 +726,11 @@ export default function AdminDashboard() {
                             <div className="text-2xl mb-2">📝</div>
                             <div className="font-black text-white group-hover:text-purple-400 transition-colors">Napisz Artykuł</div>
                             <div className="text-xs text-gray-500 mt-1">Zbuduj społeczność nową treścią</div>
-                          </button>
-                          <button onClick={() => setActiveTab('users')} className="p-6 rounded-3xl bg-orange-600/10 border border-orange-500/30 hover:bg-orange-600/20 transition-all text-left group">
-                            <div className="text-2xl mb-2">🛡️</div>
-                            <div className="font-black text-white group-hover:text-orange-400 transition-colors">Weryfikuj Mentorów</div>
-                            <div className="text-xs text-gray-500 mt-1">Zatwierdź nowe wnioski mentorów</div>
+                           <Link href="/dashboard/admin/aplikacje-mentorow" className="p-6 rounded-3xl bg-orange-600/10 border border-orange-500/30 hover:bg-orange-600/20 transition-all text-left group">
+                             <div className="text-2xl mb-2">🎓</div>
+                             <div className="font-black text-white group-hover:text-orange-400 transition-colors">Wnioski o Mentora</div>
+                             <div className="text-xs text-gray-500 mt-1">Zatwierdź nowych mentorów</div>
+                           </Link>
                           </button>
                           <button onClick={() => setActiveTab('payouts')} className="p-6 rounded-3xl bg-green-600/10 border border-green-500/30 hover:bg-green-600/20 transition-all text-left group">
                             <div className="text-2xl mb-2">💸</div>

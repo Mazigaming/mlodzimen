@@ -8,24 +8,25 @@ datasource db {
 }
 
 model User {
-  id               String       @id @default(cuid())
-  email            String       @unique
-  name             String
-  nickname         String?
-  password         String
-  role             String       @default("student")
-  avatar           String?
-  isVerified       Boolean      @default(false)
-  isActive             Boolean      @default(true)
+  id                   String              @id @default(cuid())
+  email                String              @unique
+  name                 String
+  nickname             String?
+  password             String
+  role                 String              @default("student")
+  avatar               String?
+  isVerified           Boolean             @default(false)
+  isActive             Boolean             @default(true)
   verificationToken    String?
   passwordResetToken   String?
   passwordResetExpires DateTime?
-  courses              Course[]    @relation("MentorCourses")
-  enrollments      Enrollment[]
-  payouts          Payout[]
-  coupons          Coupon[]     @relation("UserCoupons")
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
+  courses              Course[]            @relation("MentorCourses")
+  enrollments          Enrollment[]
+  payouts              Payout[]
+  coupons              Coupon[]            @relation("UserCoupons")
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+  MentorApplication    MentorApplication[]
 }
 
 model Course {
@@ -148,4 +149,18 @@ model Payout {
   updatedAt DateTime @updatedAt
 
   @@index([mentorId])
+}
+
+model MentorApplication {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  aboutYou    String
+  aboutCourse String
+  status      String   @default("pending")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
 }
