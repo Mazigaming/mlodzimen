@@ -44,12 +44,15 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
+    console.log('Course creation received data:', JSON.stringify(body, null, 2));
 
     let data;
     try {
       data = CreateCourseSchema.parse(body);
+      console.log('Course creation validation passed');
     } catch (validationError: any) {
       console.error('Course creation validation error:', validationError.errors);
+      console.error('Validation error details:', JSON.stringify(validationError.errors, null, 2));
       return apiError({
         message: 'Dane formularza są nieprawidłowe',
         details: validationError.errors
