@@ -44,7 +44,17 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const data = CreateCourseSchema.parse(body);
+
+    let data;
+    try {
+      data = CreateCourseSchema.parse(body);
+    } catch (validationError: any) {
+      console.error('Course creation validation error:', validationError.errors);
+      return apiError({
+        message: 'Dane formularza są nieprawidłowe',
+        details: validationError.errors
+      });
+    }
 
     const course = await prisma.course.create({
       data: {

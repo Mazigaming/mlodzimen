@@ -176,12 +176,20 @@ export default function CreateCoursePage() {
 
     const formData = new FormData(e.currentTarget);
     const payload = {
-      title: formData.get('title'),
-      description: formData.get('description'),
-      price: formData.get('price'),
-      category: formData.get('category'),
-      level: formData.get('level'),
-      modules: modules.filter(m => m.title.trim() !== ''),
+      title: formData.get('title')?.toString().trim(),
+      description: formData.get('description')?.toString().trim(),
+      price: parseFloat(formData.get('price')?.toString() || '0'),
+      category: formData.get('category')?.toString(),
+      level: formData.get('level')?.toString(),
+      modules: modules.filter(m => m.title.trim() !== '').map(m => ({
+        title: m.title.trim(),
+        lessons: m.lessons.filter(l => l.title.trim() !== '').map(l => ({
+          title: l.title.trim(),
+          description: l.description?.toString().trim() || '',
+          videoUrl: l.videoUrl?.toString().trim() || '',
+          content: l.content?.toString().trim() || '',
+        }))
+      })),
     };
 
     try {
