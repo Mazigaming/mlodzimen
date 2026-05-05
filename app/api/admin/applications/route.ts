@@ -19,12 +19,7 @@ export async function GET(request: NextRequest) {
       where,
       orderBy: { createdAt: 'desc' },
       include: {
-        user: {
-          select: {
-            name: true,
-            email: true,
-          },
-        },
+        user: true,
       },
     });
 
@@ -51,12 +46,7 @@ export async function PATCH(request: NextRequest) {
       where: { id },
       data: { status },
       include: {
-        user: {
-          select: {
-            name: true,
-            email: true,
-          },
-        },
+        user: true,
       },
     });
 
