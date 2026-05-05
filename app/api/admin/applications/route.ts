@@ -18,9 +18,6 @@ export async function GET(request: NextRequest) {
     const applications = await prisma.mentorApplication.findMany({
       where,
       orderBy: { createdAt: 'desc' },
-      include: {
-        user: true,
-      },
     });
 
     return apiResponse({ applications });
@@ -45,9 +42,6 @@ export async function PATCH(request: NextRequest) {
     const application = await prisma.mentorApplication.update({
       where: { id },
       data: { status },
-      include: {
-        user: true,
-      },
     });
 
     // Update user's isVerified status if approved
