@@ -51,11 +51,23 @@ export async function POST(request: NextRequest) {
       data = CreateCourseSchema.parse(body);
       console.log('Course creation validation passed');
     } catch (validationError: any) {
-      console.error('Course creation validation error:', validationError.errors);
-      console.error('Validation error details:', JSON.stringify(validationError.errors, null, 2));
+      const errors = validationError.errors || [];
+      console.error('Course creation validation error:', errors);
+      console.error('Validation error details:', JSON.stringify(errors, null, 2));
+
+      // Format error messages for user
+      const errorMessages = errors.map((err: any) => {
+        if (err.path && err.path.length > 0) {
+          const field = err.path.join('.');
+          const message = err.message;
+          return `${field}: ${message}`;
+        }
+        return err.message;
+      });
+
       return apiError({
-        message: 'Dane formularza są nieprawidłowe',
-        details: validationError.errors
+        message: 'Błąd walidacji danych',
+        details: errorMessages
       });
     }
 

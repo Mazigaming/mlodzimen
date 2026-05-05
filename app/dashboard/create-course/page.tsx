@@ -175,19 +175,51 @@ export default function CreateCoursePage() {
     setSuccess(false);
 
     const formData = new FormData(e.currentTarget);
+    const title = formData.get('title')?.toString().trim() || '';
+    const description = formData.get('description')?.toString().trim() || '';
+    const price = parseFloat(formData.get('price')?.toString() || '0');
+    const category = formData.get('category')?.toString() || '';
+    const level = formData.get('level')?.toString() || '';
+
+    // Basic frontend validation
+    if (title.length < 3) {
+      setError('Tytuł kursu musi mieć co najmniej 3 znaki');
+      return;
+    }
+
+    if (description.length < 10) {
+      setError('Opis kursu musi mieć co najmniej 10 znaków');
+      return;
+    }
+
+    if (price < 0) {
+      setError('Cena nie może być ujemna');
+      return;
+    }
+
+    if (!category) {
+      setError('Wybierz kategorię kursu');
+      return;
+    }
+
+    if (!level) {
+      setError('Wybierz poziom trudności');
+      return;
+    }
+
     const payload = {
-      title: formData.get('title')?.toString().trim(),
-      description: formData.get('description')?.toString().trim(),
-      price: parseFloat(formData.get('price')?.toString() || '0'),
-      category: formData.get('category')?.toString(),
-      level: formData.get('level')?.toString(),
+      title,
+      description,
+      price,
+      category,
+      level,
       modules: modules.filter(m => m.title.trim() !== '').map(m => ({
         title: m.title.trim(),
         lessons: m.lessons.filter(l => l.title.trim() !== '').map(l => ({
           title: l.title.trim(),
-          description: l.description?.toString().trim() || '',
-          videoUrl: l.videoUrl?.toString().trim() || '',
-          content: l.content?.toString().trim() || '',
+          description: (l.description?.toString().trim() || ''),
+          videoUrl: (l.videoUrl?.toString().trim() || ''),
+          content: (l.content?.toString().trim() || ''),
         }))
       })),
     };
@@ -201,6 +233,9 @@ export default function CreateCoursePage() {
 
       if (!response.ok) {
         const data = await response.json();
+        if (data.details && Array.isArray(data.details)) {
+          throw new Error(data.details.join('\n'));
+        }
         throw new Error(data.message || 'Błąd tworzenia kursu');
       }
 
