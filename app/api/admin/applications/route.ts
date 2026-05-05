@@ -45,7 +45,7 @@ export async function PATCH(request: NextRequest) {
     });
 
     // Update user's isVerified status if approved
-    if (status === 'approved') {
+    if (status === 'approved' && application.userId) {
       await prisma.user.update({
         where: { id: application.userId },
         data: { isVerified: true },
