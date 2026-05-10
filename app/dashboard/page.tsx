@@ -71,9 +71,7 @@ export default function DashboardPage() {
         const data = await res.json();
         if (data.user) {
           setUser(data.user);
-          if (data.user.role === 'mentor' || data.user.role === 'admin') {
-            fetchMentorData();
-          }
+          fetchUserData();
         } else {
           router.push('/login');
         }
@@ -87,7 +85,7 @@ export default function DashboardPage() {
     }
   }
 
-  async function fetchMentorData() {
+  async function fetchUserData() {
     try {
       const response = await fetch('/api/courses/mentor', {
         method: 'POST'
@@ -194,14 +192,16 @@ export default function DashboardPage() {
               </Link>
             </motion.div>
 
-            {/* Mentor Stats */}
-            {mentorStats && (
+            {/* Earnings Stats */}
+            {mentorStats && mentorStats.netRevenue > 0 && (
               <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[
-                  { label: 'Przychód Brutto', value: `${(mentorStats.grossRevenue || 0).toFixed(2)} PLN`, icon: '💰', color: 'from-blue-600/20 to-indigo-600/20' },
-                  { label: 'Dla Ciebie (75%)', value: `${(mentorStats.netRevenue || 0).toFixed(2)} PLN`, icon: '💎', color: 'from-green-600/20 to-emerald-600/20' },
-                  { label: 'Opłata (25%)', value: `${((mentorStats.grossRevenue || 0) * 0.25).toFixed(2)} PLN`, icon: '🏢', color: 'from-slate-600/20 to-slate-700/20' },
-                  { label: 'Aktywni Uczniowie', value: mentorStats.totalEnrollments, icon: '👥', color: 'from-purple-600/20 to-pink-600/20' },
+                  ...(mentorStats.grossRevenue > 0 ? [
+                    { label: 'Przychód Brutto', value: `${(mentorStats.grossRevenue || 0).toFixed(2)} PLN`, icon: '💰', color: 'from-blue-600/20 to-indigo-600/20' },
+                    { label: 'Opłata (25%)', value: `${((mentorStats.grossRevenue || 0) * 0.25).toFixed(2)} PLN`, icon: '🏢', color: 'from-slate-600/20 to-slate-700/20' },
+                    { label: 'Aktywni Uczniowie', value: mentorStats.totalEnrollments, icon: '👥', color: 'from-purple-600/20 to-pink-600/20' }
+                  ] : []),
+                  { label: 'Twoje Zarobki', value: `${(mentorStats.netRevenue || 0).toFixed(2)} PLN`, icon: '💎', color: 'from-green-600/20 to-emerald-600/20' },
                 ].map((stat, i) => (
                   <div key={i} className={`p-8 rounded-3xl border border-slate-700/50 bg-gradient-to-br ${stat.color} backdrop-blur-xl group hover:scale-[1.02] transition-all`}>
                     <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">{stat.icon}</div>
