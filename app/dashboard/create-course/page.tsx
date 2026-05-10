@@ -51,9 +51,9 @@ export default function CreateCoursePage() {
   }
 
   const [modules, setModules] = useState([
-    { 
-      title: 'Wstęp', 
-      lessons: [{ title: 'Wprowadzenie', videoUrl: '', description: '', content: '' }] 
+    {
+      title: 'Wstęp',
+      lessons: [{ title: 'Wprowadzenie', videoUrl: '', description: 'O czym będzie ten kurs.', content: '' }]
     }
   ]);
 
@@ -154,11 +154,11 @@ export default function CreateCoursePage() {
 
     setModules(genModules.map(m => ({
       title: m.title,
-      lessons: m.lessons.map(l => ({ 
-        title: l.title, 
+      lessons: m.lessons.map(l => ({
+        title: l.title,
         videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', // Placeholder
-        description: l.desc, 
-        content: '' 
+        description: l.desc,
+        content: ''
       }))
     })));
   };
@@ -388,12 +388,18 @@ export default function CreateCoursePage() {
                               />
                               <button type="button" onClick={() => removeLesson(mIdx, lIdx)} className="text-slate-600 hover:text-red-400 transition-colors">✕</button>
                             </div>
-                            <input
-                              value={l.videoUrl || ''}
-                              onChange={(e) => updateLesson(mIdx, lIdx, 'videoUrl', e.target.value)}
-                              className="text-[9px] bg-slate-950/50 rounded px-2 py-1 text-gray-500 focus:text-blue-400 focus:outline-none border border-transparent focus:border-blue-900/50 transition-all"
-                              placeholder="https://video-url.com"
-                            />
+                             <input
+                               value={l.videoUrl || ''}
+                               onChange={(e) => updateLesson(mIdx, lIdx, 'videoUrl', e.target.value)}
+                               className="text-[9px] bg-slate-950/50 rounded px-2 py-1 text-gray-500 focus:text-blue-400 focus:outline-none border border-transparent focus:border-blue-900/50 transition-all"
+                               placeholder="https://video-url.com"
+                             />
+                             <input
+                               value={l.description || ''}
+                               onChange={(e) => updateLesson(mIdx, lIdx, 'description', e.target.value)}
+                               className="text-[9px] bg-slate-950/50 rounded px-2 py-1 text-gray-500 focus:text-blue-400 focus:outline-none border border-transparent focus:border-blue-900/50 transition-all"
+                               placeholder="Opis lekcji..."
+                             />
                           </div>
                         ))}
                         <button type="button" onClick={() => addLesson(mIdx)} className="text-[10px] font-black text-slate-500 hover:text-cyan-400 transition-all uppercase tracking-widest pl-2">+ Dodaj Lekcję</button>

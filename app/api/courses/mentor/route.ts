@@ -29,9 +29,12 @@ export async function POST(_request: NextRequest) {
     const grossRevenue = courses.reduce((acc, curr) => {
       return acc + curr.enrollments.reduce((sum, e) => sum + e.paidAmount, 0);
     }, 0);
-    
-    // 90% goes to mentor, 10% to platform
-    const netRevenue = grossRevenue * 0.90;
+
+    // Sum up all processed payouts for the mentor
+    const totalPayouts = payouts.reduce((sum, p) => sum + p.amount, 0);
+
+    // Net revenue includes both direct course sales (90%) and coupon earnings
+    const netRevenue = totalPayouts;
 
     return NextResponse.json({ 
       courses, 
