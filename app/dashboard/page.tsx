@@ -302,6 +302,33 @@ export default function DashboardPage() {
           </motion.div>
         ) : (
           <motion.div variants={containerVariants} className="space-y-12">
+            {/* User Stats */}
+            <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                { label: 'Zapisane Kursy', value: user.enrollments?.length || 0, icon: '📚', color: 'from-blue-600/20 to-indigo-600/20' },
+                { label: 'Łączny Postęp', value: '0%', icon: '📈', color: 'from-green-600/20 to-emerald-600/20' },
+                { label: 'Ukończone Lekcje', value: 0, icon: '✅', color: 'from-purple-600/20 to-pink-600/20' },
+                { label: 'Certyfikaty', value: 0, icon: '🏆', color: 'from-orange-600/20 to-red-600/20' },
+              ].map((stat, i) => (
+                <div key={i} className={`p-8 rounded-3xl border border-slate-700/50 bg-gradient-to-br ${stat.color} backdrop-blur-xl group hover:scale-[1.02] transition-all`}>
+                  <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">{stat.icon}</div>
+                  <div className="text-3xl font-black text-white mb-1">{stat.value}</div>
+                  <div className="text-xs font-black text-gray-500 uppercase tracking-widest">{stat.label}</div>
+                </div>
+              ))}
+            </motion.div>
+
+            {/* Earnings Stats for coupon creators */}
+            {mentorStats && mentorStats.netRevenue > 0 && (
+              <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-1 gap-6">
+                <div className={`p-8 rounded-3xl border border-slate-700/50 bg-gradient-to-br from-green-600/20 to-emerald-600/20 backdrop-blur-xl group hover:scale-[1.02] transition-all`}>
+                  <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">💎</div>
+                  <div className="text-3xl font-black text-white mb-1">{mentorStats.netRevenue.toFixed(2)} PLN</div>
+                  <div className="text-xs font-black text-gray-500 uppercase tracking-widest">Twoje Zarobki</div>
+                </div>
+              </motion.div>
+            )}
+
             <motion.div variants={itemVariants}>
               <h2 className="text-3xl font-black text-white mb-8 flex items-center gap-3">
                 <span>📚</span> Moje Kursy
