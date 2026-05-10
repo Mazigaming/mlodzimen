@@ -630,8 +630,8 @@ export default function AdminDashboard() {
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                       {[
                         { label: 'Przychód Brutto', value: `${(stats?.totalRevenue || 0).toFixed(2)} PLN`, icon: '💰', color: 'bg-green-600/10 text-green-400 border-green-500/20' },
-                        { label: 'Zysk Platformy (10%)', value: `${(stats?.platformRevenue || 0).toFixed(2)} PLN`, icon: '🏢', color: 'bg-blue-600/10 text-blue-400 border-blue-500/20' },
-                        { label: 'Dla Mentorów (90%)', value: `${(stats?.mentorsRevenue || 0).toFixed(2)} PLN`, icon: '👨‍🏫', color: 'bg-orange-600/10 text-orange-400 border-orange-500/20' },
+                        { label: 'Zysk Platformy (25%)', value: `${(stats?.platformRevenue || 0).toFixed(2)} PLN`, icon: '🏢', color: 'bg-blue-600/10 text-blue-400 border-blue-500/20' },
+                        { label: 'Dla Mentorów (75%)', value: `${(stats?.mentorsRevenue || 0).toFixed(2)} PLN`, icon: '👨‍🏫', color: 'bg-orange-600/10 text-orange-400 border-orange-500/20' },
                         { label: 'Użytkownicy', value: stats?.userCount || 0, icon: '🎓', color: 'bg-purple-600/10 text-purple-400 border-purple-500/20' },
                       ].map((stat, i) => (
                         <div key={i} className={`p-4 md:p-6 rounded-xl border ${stat.color} backdrop-blur-xl relative group hover:scale-[1.02] transition-all duration-300 shadow-xl shadow-black/20`}>
