@@ -193,7 +193,7 @@ export default function DashboardPage() {
             </motion.div>
 
             {/* Earnings Stats */}
-            {mentorStats && mentorStats.netRevenue > 0 && (
+            {mentorStats && (
               <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[
                   ...(mentorStats.grossRevenue > 0 ? [
