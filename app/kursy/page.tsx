@@ -23,9 +23,13 @@ interface Course {
   description: string;
   price: number;
   category: string;
+  level: string;
   mentor: {
     name: string;
     avatar: string | null;
+  };
+  _count: {
+    enrollments: number;
   };
 }
 
@@ -33,6 +37,8 @@ export default function CoursesPage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedLevel, setSelectedLevel] = useState('');
 
   useEffect(() => {
     async function fetchCourses() {
@@ -53,10 +59,16 @@ export default function CoursesPage() {
     fetchCourses();
   }, []);
 
-  const filteredCourses = courses.filter(course =>
-    course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    course.category.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredCourses = courses.filter(course => {
+    const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         course.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         course.mentor.name.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesCategory = selectedCategory === '' || course.category === selectedCategory;
+    const matchesLevel = selectedLevel === '' || course.level === selectedLevel;
+
+    return matchesSearch && matchesCategory && matchesLevel;
+  });
 
   return (
     <div className="min-h-screen py-32 px-4 bg-gradient-to-b from-slate-950/30 via-blue-950/30 to-slate-950/30 relative overflow-hidden">
@@ -82,19 +94,77 @@ export default function CoursesPage() {
         </motion.div>
 
         {/* Search and Filter */}
-        <motion.div variants={itemVariants} className="mb-12 flex flex-col md:flex-row gap-4">
-          <div className="flex-1 relative">
+        <motion.div variants={itemVariants} className="mb-12 space-y-4">
+          {/* Search Bar */}
+          <div className="relative">
             <label htmlFor="search-courses" className="sr-only">Szukaj kursu</label>
             <input
               id="search-courses"
               type="text"
-              placeholder="Szukaj kursu po tytule lub kategorii..."
+              placeholder="Szukaj kursu po tytule, kategorii lub mentorze..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 text-white placeholder-gray-500 transition-all"
             />
           </div>
+
+          {/* Filters */}
+          <div className="flex flex-wrap gap-4">
+            <div className="flex items-center gap-2">
+              <label htmlFor="category-filter" className="text-sm font-medium text-gray-300">Kategoria:</label>
+              <select
+                id="category-filter"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="px-3 py-2 bg-slate-900/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-white text-sm"
+              >
+                <option value="">Wszystkie</option>
+                <option value="web-development">Web Development</option>
+                <option value="design">Design</option>
+                <option value="business">Biznes</option>
+                <option value="mobile">Mobile</option>
+                <option value="python">Python</option>
+              </select>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <label htmlFor="level-filter" className="text-sm font-medium text-gray-300">Poziom:</label>
+              <select
+                id="level-filter"
+                value={selectedLevel}
+                onChange={(e) => setSelectedLevel(e.target.value)}
+                className="px-3 py-2 bg-slate-900/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-white text-sm"
+              >
+                <option value="">Wszystkie</option>
+                <option value="beginner">Junior</option>
+                <option value="intermediate">Mid</option>
+                <option value="advanced">Senior</option>
+              </select>
+            </div>
+
+            {(searchTerm || selectedCategory || selectedLevel) && (
+              <button
+                onClick={() => {
+                  setSearchTerm('');
+                  setSelectedCategory('');
+                  setSelectedLevel('');
+                }}
+                className="px-4 py-2 bg-red-600/20 border border-red-500/30 rounded-lg hover:bg-red-600/30 text-red-400 hover:text-red-300 transition-all text-sm font-medium"
+              >
+                Wyczyść filtry
+              </button>
+            )}
+          </div>
         </motion.div>
+
+        {/* Results Counter */}
+        {!loading && (
+          <motion.div variants={itemVariants} className="mb-8">
+            <p className="text-gray-400 text-sm">
+              Znaleziono <span className="text-white font-bold">{filteredCourses.length}</span> z <span className="text-white font-bold">{courses.length}</span> dostępnych kursów
+            </p>
+          </motion.div>
+        )}
 
         {/* Courses Grid */}
         {loading ? (
@@ -114,7 +184,11 @@ export default function CoursesPage() {
                 role="listitem"
               >
                 <div className="bg-gradient-to-br from-blue-600/30 to-cyan-600/30 p-8 text-center text-6xl border-b border-slate-700/50" aria-hidden="true">
-                  {course.category === 'python' ? '🐍' : '📚'}
+                  {course.category === 'python' ? '🐍' :
+                   course.category === 'web-development' ? '💻' :
+                   course.category === 'design' ? '🎨' :
+                   course.category === 'business' ? '📈' :
+                   course.category === 'mobile' ? '📱' : '📚'}
                 </div>
                 <div className="p-6 space-y-4 flex flex-col flex-1 min-w-0">
                   <div className="flex items-center gap-3">
@@ -130,12 +204,27 @@ export default function CoursesPage() {
                       <p className="text-gray-500 text-xs md:text-sm break-words">od {course.mentor.name}</p>
                     </div>
                   </div>
-                  <div className="flex justify-between items-center py-4 border-y border-slate-700/50 mt-auto">
-                    <span className="font-bold text-lg text-blue-400">
-                      {course.price} zł
-                    </span>
-                    <span className="text-cyan-400 text-xs uppercase font-bold tracking-wider">{course.category}</span>
-                  </div>
+                   <div className="flex justify-between items-center py-4 border-y border-slate-700/50 mt-auto">
+                     <div className="flex flex-col">
+                       <span className="font-bold text-lg text-blue-400">
+                         {course.price} zł
+                       </span>
+                       <span className="text-xs text-gray-500">
+                         👥 {course._count.enrollments} uczniów
+                       </span>
+                     </div>
+                     <div className="flex flex-col items-end gap-1">
+                       <span className={`text-xs uppercase font-bold tracking-wider px-2 py-1 rounded ${
+                         course.level === 'beginner' ? 'bg-green-500/20 text-green-400' :
+                         course.level === 'intermediate' ? 'bg-yellow-500/20 text-yellow-400' :
+                         'bg-red-500/20 text-red-400'
+                       }`}>
+                         {course.level === 'beginner' ? 'Junior' :
+                          course.level === 'intermediate' ? 'Mid' : 'Senior'}
+                       </span>
+                       <span className="text-cyan-400 text-xs uppercase font-bold tracking-wider">{course.category}</span>
+                     </div>
+                   </div>
                   <Link 
                     href={`/kursy/${course.id}`} 
                     className="w-full btn btn-primary text-center block focus:ring-2 focus:ring-cyan-400 outline-none"
