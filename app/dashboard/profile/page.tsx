@@ -235,15 +235,15 @@ export default function ProfilePage() {
 
           <div className="flex flex-col items-center mb-10">
             <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 p-1 mb-4 relative group">
-              {avatarPreview && avatarPreview.startsWith('/') ? (
-                <img 
-                  src={avatarPreview} 
-                  alt="Avatar" 
+              {avatarPreview ? (
+                <img
+                  src={avatarPreview}
+                  alt="Avatar"
                   className="w-full h-full rounded-full object-cover bg-slate-900"
                 />
               ) : (
                 <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-4xl">
-                  {formData.avatar || '👤'}
+                  👤
                 </div>
               )}
               <label className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
