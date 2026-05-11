@@ -45,19 +45,22 @@ export async function GET(request: NextRequest) {
 // Allow POST for API calls as well
 export async function POST(request: NextRequest) {
   try {
-    const { token } = await request.json();
+    const { code, email } = await request.json();
 
-    if (!token) {
-      throw new ApiError('Brak tokena weryfikacyjnego', 400);
+    if (!code || !email) {
+      throw new ApiError('Brak kodu weryfikacyjnego lub emaila', 400);
     }
 
     const user = await prisma.user.findFirst({
-      where: { verificationToken: token },
+      where: {
+        email: email.toLowerCase(),
+        verificationToken: code
+      },
       select: { id: true, email: true, isVerified: true }
     });
 
     if (!user) {
-      throw new ApiError('Nieprawidłowy lub wygasły token weryfikacyjny', 400);
+      throw new ApiError('Nieprawidłowy kod weryfikacyjny', 400);
     }
 
     if (user.isVerified) {

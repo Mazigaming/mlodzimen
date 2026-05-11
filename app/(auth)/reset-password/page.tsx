@@ -2,13 +2,11 @@
 
 import { useState, FormEvent, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 
 function ResetPasswordForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const token = searchParams.get('token');
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -22,6 +20,8 @@ function ResetPasswordForm() {
     setError('');
 
     const formData = new FormData(e.currentTarget);
+    const email = formData.get('email');
+    const code = formData.get('code');
     const password = formData.get('password');
     const confirmPassword = formData.get('confirmPassword');
 
@@ -31,8 +31,8 @@ function ResetPasswordForm() {
       return;
     }
 
-    if (!token) {
-      setError('Brak tokenu resetowania hasła');
+    if (!email || !code) {
+      setError('Brak emaila lub kodu resetowania');
       setIsLoading(false);
       return;
     }
@@ -41,7 +41,7 @@ function ResetPasswordForm() {
       const response = await fetch('/api/auth/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, password }),
+        body: JSON.stringify({ email, code, password }),
       });
 
       if (!response.ok) {
@@ -63,22 +63,7 @@ function ResetPasswordForm() {
     }
   }
 
-  if (!token) {
-    return (
-      <div className="min-h-screen flex items-center justify-center py-12 px-4 bg-gradient-to-br from-slate-950 via-blue-950/40 to-slate-950">
-        <div className="w-full max-w-md rounded-3xl border border-slate-700/50 p-10 text-center">
-          <div className="text-6xl mb-4">❌</div>
-          <h1 className="text-2xl font-black text-white mb-4">Nieprawidłowy link</h1>
-          <p className="text-gray-400 mb-6">
-            Link resetowania hasła jest nieprawidłowy lub wygasł.
-          </p>
-          <Link href="/forgot-password" className="btn btn-primary">
-            Poproś o nowy link
-          </Link>
-        </div>
-      </div>
-    );
-  }
+
 
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 bg-gradient-to-br from-slate-950 via-blue-950/40 to-slate-950 relative overflow-hidden">
@@ -137,6 +122,34 @@ function ResetPasswordForm() {
 
           {!successMessage && (
             <form onSubmit={handleSubmit} className="space-y-5">
+              <div>
+                <label htmlFor="email" className="block text-sm font-bold text-gray-300 mb-2 uppercase tracking-wide">
+                  Email
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-500 transition-all"
+                  placeholder="twoj@email.com"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="code" className="block text-sm font-bold text-gray-300 mb-2 uppercase tracking-wide">
+                  Kod resetowania
+                </label>
+                <input
+                  id="code"
+                  name="code"
+                  type="text"
+                  required
+                  className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-500 transition-all"
+                  placeholder="123456"
+                />
+              </div>
+
               <div>
                 <label htmlFor="password" className="block text-sm font-bold text-gray-300 mb-2 uppercase tracking-wide">
                   Nowe hasło

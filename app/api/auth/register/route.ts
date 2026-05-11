@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { hashPassword } from '@/lib/auth/password';
 import { isRateLimited } from '@/lib/security/shield';
-import { sendVerificationEmail, generateVerificationToken } from '@/lib/email';
+import { sendVerificationEmail } from '@/lib/email';
 import { z } from 'zod';
 import { apiError, apiResponse, ApiError } from '@/lib/api-utils';
 
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     }
 
     const hashedPassword = await hashPassword(password);
-    const verificationToken = generateVerificationToken();
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit code
 
     const user = await prisma.user.create({
       data: {
@@ -40,8 +40,8 @@ export async function POST(request: NextRequest) {
         name,
         password: hashedPassword,
         role,
-        verificationToken,
-        isVerified: true, // Skip email verification - auto-verify users
+        verificationToken: verificationCode,
+        isVerified: false, // Require email verification
       },
       select: {
         id: true,
@@ -50,21 +50,19 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Get base URL for email links (for logging purposes)
-    const host = request.headers.get('host') || 'localhost:3000';
-    const protocol = host.includes('localhost') ? 'http' : 'https';
-    const baseUrl = `${protocol}://${host}`;
+    // Send verification email with OTP code
+    const emailSent = await sendVerificationEmail(email, verificationCode);
 
-    // Send verification email (for logging only, not required for login)
-    const emailSent = await sendVerificationEmail(email, verificationToken, baseUrl);
-
-    // Note: We don't delete user if email fails, since verification is not required
+    if (!emailSent) {
+      // Delete user if email failed
+      await prisma.user.delete({ where: { id: user.id } });
+      throw new ApiError('Nie udało się wysłać emaila weryfikacyjnego', 500);
+    }
 
     return apiResponse({
       userId: user.id,
-      role: user.role,
-      message: 'Zarejestrowano pomyślnie! Możesz się teraz zalogować.',
-      emailSent
+      message: 'Zarejestrowano pomyślnie! Sprawdź swoją skrzynkę email i wprowadź kod weryfikacyjny.',
+      requiresVerification: true
     }, 201);
   } catch (error) {
     return apiError(error);

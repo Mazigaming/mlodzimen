@@ -25,26 +25,21 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Generate reset token and expiry (1 hour)
-    const resetToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
+    // Generate 6-digit reset code and expiry (1 hour)
+    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
     const resetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
-    // Update user with reset token
+    // Update user with reset code
     await prisma.user.update({
       where: { id: user.id },
       data: {
-        passwordResetToken: resetToken,
+        passwordResetToken: resetCode,
         passwordResetExpires: resetExpires,
       },
     });
 
-    // Get base URL for email links
-    const host = request.headers.get('host') || 'localhost:3000';
-    const protocol = host.includes('localhost') ? 'http' : 'https';
-    const baseUrl = `${protocol}://${host}`;
-
-    // Send reset email
-    const emailSent = await sendPasswordResetEmail(user.email, resetToken, baseUrl);
+    // Send reset email with code
+    const emailSent = await sendPasswordResetEmail(user.email, resetCode);
 
     if (!emailSent) {
       console.error('Failed to send password reset email');
