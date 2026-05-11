@@ -27,6 +27,17 @@ export async function POST(req: NextRequest) {
 
     if (userId && courseId) {
       try {
+        // Get course info for payout calculation
+        const course = await prisma.course.findUnique({
+          where: { id: courseId },
+          select: { price: true, mentorId: true }
+        });
+
+        if (!course) {
+          console.error(`Course ${courseId} not found`);
+          return new NextResponse('Course not found', { status: 400 });
+        }
+
         await prisma.$transaction(async (tx) => {
           // 1. Create enrollment
           const enrollmentData: any = {
@@ -37,7 +48,7 @@ export async function POST(req: NextRequest) {
             couponCode: couponCode || null,
             couponCreatorId: couponCreatorId || null,
           };
-          
+
           await tx.enrollment.upsert({
             where: {
               userId_courseId: {
@@ -49,7 +60,66 @@ export async function POST(req: NextRequest) {
             create: enrollmentData,
           });
 
-          // 2. Update coupon usage if a coupon was used
+          // 2. Create payouts based on payment structure
+          if (couponCode) {
+            // Coupon used: mentor 75%, platform 5%, creator 10% (all of original price)
+            await tx.payout.create({
+              data: {
+                mentorId: course.mentorId,
+                amount: course.price * 0.75,
+                status: 'pending',
+                notes: `Sprzedaż kursu z kuponem: ${couponCode}`
+              }
+            });
+
+            // Platform fee payout (though platform keeps it, for tracking)
+            await tx.payout.create({
+              data: {
+                mentorId: 'platform', // Special ID for platform
+                amount: course.price * 0.05,
+                status: 'completed', // Auto-complete for platform
+                notes: `Opłata platformy za kupon: ${couponCode}`
+              }
+            });
+
+            // Coupon creator payout
+            const coupon = await tx.coupon.findUnique({
+              where: { code: couponCode },
+              select: { creatorId: true }
+            });
+
+            if (coupon?.creatorId) {
+              await tx.payout.create({
+                data: {
+                  mentorId: coupon.creatorId,
+                  amount: course.price * 0.10,
+                  status: 'pending',
+                  notes: `Prowizja za kod kuponu: ${couponCode}`
+                }
+              });
+            }
+          } else {
+            // No coupon: mentor 85%, platform 15%
+            await tx.payout.create({
+              data: {
+                mentorId: course.mentorId,
+                amount: course.price * 0.85,
+                status: 'pending',
+                notes: 'Sprzedaż kursu'
+              }
+            });
+
+            await tx.payout.create({
+              data: {
+                mentorId: 'platform',
+                amount: course.price * 0.15,
+                status: 'completed',
+                notes: 'Opłata platformy'
+              }
+            });
+          }
+
+          // 3. Update coupon usage
           if (couponCode) {
             await tx.coupon.update({
               where: { code: couponCode },
