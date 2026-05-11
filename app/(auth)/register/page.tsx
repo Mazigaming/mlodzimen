@@ -28,6 +28,9 @@ function RegisterForm() {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showVerification, setShowVerification] = useState(false);
+  const [verificationEmail, setVerificationEmail] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -58,34 +61,130 @@ function RegisterForm() {
         let errorMessage = 'Rejestracja nie powiodła się';
 
         try {
-          // Try to parse as JSON
-          const contentType = response.headers.get('content-type');
-          if (contentType && contentType.includes('application/json')) {
-            const data = await response.json();
-            errorMessage = data.error || data.message || errorMessage;
-          } else {
-            // If not JSON, get text response
-            const text = await response.text();
-            console.error('Non-JSON response:', text);
-            errorMessage = 'Wystąpił błąd serwera. Spróbuj ponownie.';
-          }
-        } catch (parseError) {
-          console.error('JSON parse error:', parseError);
-          // If JSON parsing fails, it might be HTML error page
-          errorMessage = 'Wystąpił błąd serwera. Sprawdź połączenie i spróbuj ponownie.';
+          const data = await response.json();
+          errorMessage = data.error || data.message || errorMessage;
+        } catch {
+          errorMessage = 'Wystąpił błąd serwera. Spróbuj ponownie.';
         }
 
         throw new Error(errorMessage);
       }
 
-      // No more localStorage - handled by HttpOnly cookie
-      router.push('/dashboard');
-      router.refresh();
+      const data = await response.json();
+      if (data.requiresVerification) {
+        setVerificationEmail(email as string);
+        setShowVerification(true);
+      } else {
+        router.push('/dashboard');
+        router.refresh();
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Błąd rejestracji');
     } finally {
       setIsLoading(false);
     }
+  }
+
+  async function handleVerification(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch('/api/auth/verify-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: verificationEmail, code: verificationCode }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Weryfikacja nie powiodła się');
+      }
+
+      router.push('/dashboard');
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Błąd weryfikacji');
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  if (showVerification) {
+    return (
+      <div className="min-h-screen flex items-center justify-center py-12 px-4 bg-gradient-to-br from-slate-950 via-blue-950/40 to-slate-950 relative overflow-hidden">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="w-full max-w-md rounded-3xl border border-slate-700/50 p-10 relative z-10"
+          style={{
+            background: 'rgba(15, 23, 42, 0.8)',
+            backdropFilter: 'blur(10px)',
+          }}
+        >
+          <div className="space-y-8">
+            <div className="text-center space-y-3">
+              <h1 className="text-4xl md:text-5xl font-black text-white">
+                Zweryfikuj email
+              </h1>
+              <p className="text-gray-400">
+                Wprowadź 6-cyfrowy kod wysłany na {verificationEmail}
+              </p>
+            </div>
+
+            {error && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                role="alert"
+                aria-live="polite"
+                className="bg-red-500/20 border border-red-500/50 text-red-200 px-4 py-3 rounded-lg focus:outline-none"
+              >
+                {error}
+              </motion.div>
+            )}
+
+            <form onSubmit={handleVerification} className="space-y-5">
+              <div>
+                <label htmlFor="code" className="block text-sm font-bold text-gray-300 mb-2 uppercase tracking-wide">
+                  Kod weryfikacyjny
+                </label>
+                <input
+                  id="code"
+                  type="text"
+                  value={verificationCode}
+                  onChange={e => setVerificationCode(e.target.value)}
+                  required
+                  maxLength={6}
+                  className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-500 transition-all text-center text-2xl font-black"
+                  placeholder="123456"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full btn btn-primary py-3 disabled:opacity-50 disabled:cursor-not-allowed focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-slate-950 outline-none"
+              >
+                {isLoading ? 'Weryfikowanie...' : 'Zweryfikuj'}
+              </button>
+            </form>
+
+            <p className="text-center text-gray-400">
+              Nie otrzymałeś kodu?{' '}
+              <button
+                onClick={() => setShowVerification(false)}
+                className="text-blue-400 hover:text-blue-300 font-bold transition-colors"
+              >
+                Spróbuj ponownie
+              </button>
+            </p>
+          </div>
+        </motion.div>
+      </div>
+    );
   }
 
   return (
