@@ -37,7 +37,11 @@ export async function POST(_request: NextRequest) {
       orderBy: { createdAt: 'desc' }
     });
 
-    const totalEarnings = payouts.reduce((sum, p) => sum + p.amount, 0);
+    const couponEarnings = payouts.reduce((sum, p) => sum + p.amount, 0);
+
+    // Calculate total earnings: course earnings (75%) + coupon earnings
+    const courseEarnings = courseRevenue * 0.75;
+    const totalEarnings = courseEarnings + couponEarnings;
 
     return NextResponse.json({
       courses,
