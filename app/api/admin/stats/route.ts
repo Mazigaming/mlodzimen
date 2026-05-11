@@ -41,8 +41,8 @@ export async function GET(_request: NextRequest) {
     });
 
     const totalRevenue = activeEnrollments.reduce((acc, curr) => acc + curr.paidAmount, 0);
-    const platformRevenue = totalRevenue * 0.10; // 10% platform fee
-    const mentorsRevenue = totalRevenue * 0.90; // 90% mentor share
+    const platformRevenue = totalRevenue * 0.25; // 25% platform fee
+    const mentorsRevenue = totalRevenue * 0.75; // 75% mentor share
     
     const avgRevenuePerUser = userCount > 0 ? totalRevenue / userCount : 0;
 
