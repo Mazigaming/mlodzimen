@@ -49,93 +49,85 @@ export async function POST() {
       return apiResponse({ message: 'Brak nowych zapisów do rozliczenia' });
     }
 
-    // Group by mentor and coupon creator - payout logic:
-    // - Normal sale: 15% platform, 85% mentor
-    // - Coupon sale: 5% platform, 75% mentor, 20% coupon creator gets 20% of sale as commission
+    // Group by mentor and coupon creator - payout logic aligned with webhook:
+    // - Normal sale: 25% platform, 75% mentor
+    // - Coupon sale with creator: 5% platform, 75% mentor, 10% creator (all % of original price)
+    // - Coupon sale without creator: 5% platform, 85% mentor
     const mentorPayouts: any = {};
     const creatorPayouts: any = {};
-    
+    let platformTotal = 0;
+
     pendingEnrollments.forEach((curr) => {
       const mentorId = curr.course.mentorId;
-      const amount = curr.paidAmount;
       const courseOriginalPrice = curr.course.price;
+      const amount = curr.paidAmount;
       const couponCreatorId = (curr as any).couponCreatorId;
-      
-      // Check if coupon was used by comparing paid amount to original price
-      const isCouponUsed = amount < courseOriginalPrice;
-      
-      let platformFee;
-      let mentorShare;
+
+      const isCouponUsed = !!(curr.couponCode);
+
+      let platformFee = 0;
+      let mentorShare = 0;
       let creatorShare = 0;
-      
+
       if (isCouponUsed && couponCreatorId) {
-        // Coupon sale (10% discount): 5% platform, 75% mentor, 10% creator (all % of original price)
         platformFee = courseOriginalPrice * 0.05;
         mentorShare = courseOriginalPrice * 0.75;
         creatorShare = courseOriginalPrice * 0.10;
       } else if (isCouponUsed) {
-        // Coupon sale with unknown creator: 5% platform, 85% mentor
         platformFee = courseOriginalPrice * 0.05;
         mentorShare = courseOriginalPrice * 0.85;
       } else {
-        // Normal sale: 15% platform, 85% mentor
-        platformFee = courseOriginalPrice * 0.15;
-        mentorShare = courseOriginalPrice * 0.85;
+        platformFee = courseOriginalPrice * 0.25;
+        mentorShare = courseOriginalPrice * 0.75;
       }
-      
-      // Add to mentor payout
-      if (!mentorPayouts[mentorId]) {
-        mentorPayouts[mentorId] = { platformFee: 0, mentorShare: 0 };
-      }
-      mentorPayouts[mentorId].platformFee += platformFee;
-      mentorPayouts[mentorId].mentorShare += mentorShare;
-      
-      // Add to coupon creator payout (if applicable)
+
+      if (!mentorPayouts[mentorId]) mentorPayouts[mentorId] = 0;
+      mentorPayouts[mentorId] += mentorShare;
+
+      platformTotal += platformFee;
+
       if (creatorShare > 0 && couponCreatorId) {
-        if (!creatorPayouts[couponCreatorId]) {
-          creatorPayouts[couponCreatorId] = 0;
-        }
+        if (!creatorPayouts[couponCreatorId]) creatorPayouts[couponCreatorId] = 0;
         creatorPayouts[couponCreatorId] += creatorShare;
       }
     });
 
-    // Create mentor payout records
-    const payoutPromises = Object.entries(mentorPayouts).map(([mentorId, data]: [string, any]) => {
-      const amount = data.mentorShare;
-      if (amount <= 0) return null;
-      return prisma.payout.create({
+    // Ensure platform user exists
+    const platformEmail = process.env.PLATFORM_PAYOUT_EMAIL || 'platform@mlodzimentorzy.local';
+    let platformUser = await prisma.user.findUnique({ where: { email: platformEmail } });
+    if (!platformUser) {
+      platformUser = await prisma.user.create({
         data: {
-          mentorId,
-          amount: amount,
-          status: 'pending',
+          email: platformEmail,
+          name: 'Platform',
+          password: Math.random().toString(36),
+          role: 'admin',
+          isVerified: true
         }
       });
+    }
+
+    // Create mentor payout records
+    const payoutPromises = Object.entries(mentorPayouts).map(([mentorId, amount]: [string, any]) => {
+      if (amount <= 0) return null;
+      return prisma.payout.create({ data: { mentorId, amount, status: 'pending' } });
     }).filter(Boolean);
 
     // Create coupon creator payout records
     const creatorPayoutPromises = Object.entries(creatorPayouts).map(([creatorId, amount]: [string, any]) => {
       if (amount <= 0) return null;
-      return prisma.payout.create({
-        data: {
-          mentorId: creatorId, // Creators are also users, can receive payouts
-          amount: amount,
-          status: 'pending',
-          notes: 'Prowizja od kuponu', // Note for the creator
-        }
-      });
+      return prisma.payout.create({ data: { mentorId: creatorId, amount, status: 'pending', notes: 'Prowizja od kuponu' } });
     }).filter(Boolean);
 
-    await Promise.all(payoutPromises);
-    await Promise.all(creatorPayoutPromises);
+    // Create platform payout record (tracked under platform user)
+    const platformPayoutPromise = platformTotal > 0 ? prisma.payout.create({ data: { mentorId: platformUser.id, amount: platformTotal, status: 'completed', notes: 'Opłaty platformy' } }) : null;
+
+    await Promise.all([...payoutPromises, ...creatorPayoutPromises, platformPayoutPromise].filter(Boolean));
 
     // Mark enrollments as processed
     await prisma.enrollment.updateMany({
-      where: {
-        id: { in: pendingEnrollments.map(e => e.id) }
-      },
-      data: {
-        payoutProcessed: true
-      }
+      where: { id: { in: pendingEnrollments.map(e => e.id) } },
+      data: { payoutProcessed: true }
     });
 
     return apiResponse({ message: 'Wygenerowano wypłaty dla mentorów' });
