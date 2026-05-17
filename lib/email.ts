@@ -14,13 +14,21 @@ if (hasSMTP) {
   });
 }
 
-async function sendViaEmailJS(serviceId: string, templateId: string, userId: string, templateParams: any) {
+async function sendViaEmailJS(serviceId: string, templateId: string, userIdOrPublicKey: string, templateParams: any) {
   try {
+    // EmailJS supports either user_id (legacy) or public_key (newer). Send both fields if available.
+    const body: any = { service_id: serviceId, template_id: templateId, template_params: templateParams };
+    if (userIdOrPublicKey) {
+      body.user_id = userIdOrPublicKey;
+      body.public_key = userIdOrPublicKey;
+    }
     const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ service_id: serviceId, template_id: templateId, user_id: userId, template_params: templateParams })
+      body: JSON.stringify(body)
     });
+    const text = await res.text();
+    if (!res.ok) console.error('EmailJS response:', res.status, text);
     return res.ok;
   } catch (err) {
     console.error('EmailJS send failed:', err);
@@ -64,9 +72,11 @@ export async function sendVerificationEmail(email: string, code: string) {
   }
 
   // Fallback to EmailJS if configured
-  if (process.env.EMAILJS_SERVICE_ID && process.env.EMAILJS_VERIFICATION_TEMPLATE_ID && process.env.EMAILJS_USER_ID) {
+  const emailjsUser = process.env.EMAILJS_USER_ID || process.env.EMAILJS_PUBLIC_KEY;
+  const emailjsKey = process.env.EMAILJS_USER_ID || process.env.EMAILJS_PUBLIC_KEY || process.env.EMAILJS_PUBLIC_KEY;
+  if (process.env.EMAILJS_SERVICE_ID && process.env.EMAILJS_VERIFICATION_TEMPLATE_ID && emailjsKey) {
     const templateParams = { to_email: email, otp_code: code, subject: 'Zweryfikuj swój email - Młodzi Mentorzy' };
-    const ok = await sendViaEmailJS(process.env.EMAILJS_SERVICE_ID, process.env.EMAILJS_VERIFICATION_TEMPLATE_ID, process.env.EMAILJS_USER_ID, templateParams);
+    const ok = await sendViaEmailJS(process.env.EMAILJS_SERVICE_ID, process.env.EMAILJS_VERIFICATION_TEMPLATE_ID, emailjsKey, templateParams);
     if (ok) {
       console.log(`Verification email sent to ${email} via EmailJS`);
       return true;
