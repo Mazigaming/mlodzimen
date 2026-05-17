@@ -22,11 +22,20 @@ async function sendViaEmailJS(serviceId: string, templateId: string, userIdOrPub
       body.user_id = userIdOrPublicKey;
       body.public_key = userIdOrPublicKey;
     }
+    // include both public_key and publicKey for compatibility
+    body.public_key = body.public_key || body.publicKey || userIdOrPublicKey;
+    body.publicKey = body.publicKey || body.public_key || userIdOrPublicKey;
+    // include legacy user_id as well
+    body.user_id = body.user_id || userIdOrPublicKey;
+    // include access token (private key) if configured
+    if (process.env.EMAILJS_ACCESS_TOKEN) body.accessToken = process.env.EMAILJS_ACCESS_TOKEN;
+
     const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     });
+    
     const text = await res.text();
     if (!res.ok) console.error('EmailJS response:', res.status, text);
     return res.ok;
