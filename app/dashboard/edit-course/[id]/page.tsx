@@ -4,6 +4,7 @@ import { useEffect, useState, FormEvent } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import RichTextEditor from '@/components/RichTextEditor';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -119,10 +120,12 @@ export default function EditCoursePage() {
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    /*
     if (user?.role === 'mentor' && !user?.isVerified) {
       setError('Twoje konto mentora wymaga weryfikacji przed edycją kursów.');
       return;
     }
+    */
 
     setIsLoading(true);
     setError('');
@@ -300,12 +303,19 @@ export default function EditCoursePage() {
                               />
                               <button type="button" onClick={() => removeLesson(mIdx, lIdx)} className="text-slate-600 hover:text-red-400 transition-colors">✕</button>
                             </div>
-                            <input
-                              value={l.videoUrl || ''}
-                              onChange={(e) => updateLesson(mIdx, lIdx, 'videoUrl', e.target.value)}
-                              className="text-[9px] bg-slate-950/50 rounded px-2 py-1 text-gray-500 focus:text-blue-400 focus:outline-none border border-transparent focus:border-blue-900/50 transition-all"
-                              placeholder="https://video-url.com"
-                            />
+                            <div className="flex flex-col gap-2">
+                              <input
+                                value={l.videoUrl || ''}
+                                onChange={(e) => updateLesson(mIdx, lIdx, 'videoUrl', e.target.value)}
+                                className="text-[9px] bg-slate-950/50 rounded px-2 py-1 text-gray-500 focus:text-blue-400 focus:outline-none border border-transparent focus:border-blue-900/50 transition-all"
+                                placeholder="Link do wideo (np. YouTube)"
+                              />
+                               <RichTextEditor
+                                 value={l.description || ''}
+                                 onChange={(html: string) => updateLesson(mIdx, lIdx, 'description', html)}
+                                 placeholder="Opis lekcji (możesz używać formatowania)..."
+                               />
+                            </div>
                           </div>
                         ))}
                         <button type="button" onClick={() => addLesson(mIdx)} className="text-[10px] font-black text-slate-500 hover:text-cyan-400 transition-all uppercase tracking-widest pl-2">+ Dodaj Lekcję</button>
