@@ -4,6 +4,15 @@ const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
   : null;
 
+/**
+ * From address for all transactional emails (verification + password reset).
+ * 
+ * Default: Resend's test domain (works immediately for testing).
+ * 
+ * For production:
+ *   1. Verify your domain in Resend dashboard (e.g. mlodzimentorzy.pl)
+ *   2. Set EMAIL_FROM="Młodzi Mentorzy <noreply@mlodzimentorzy.pl>" in .env
+ */
 const FROM_EMAIL = process.env.EMAIL_FROM || 'Młodzi Mentorzy <onboarding@resend.dev>';
 
 export async function verifyEmail(token: string): Promise<boolean> {
