@@ -15,14 +15,29 @@ const resend = process.env.RESEND_API_KEY
  */
 const FROM_EMAIL = process.env.EMAIL_FROM || 'Młodzi Mentorzy <onboarding@resend.dev>';
 
+// === TESTING OVERRIDE ===
+// When EMAIL_TEST_RECIPIENT is set, ALL verification + password reset emails
+// will be forced to this address (useful while using Resend test domain).
+const TEST_RECIPIENT = process.env.EMAIL_TEST_RECIPIENT || null;
+
+function getRecipient(originalEmail: string) {
+  if (TEST_RECIPIENT) {
+    console.log(`[EMAIL TEST MODE] Overriding recipient ${originalEmail} → ${TEST_RECIPIENT}`);
+    return TEST_RECIPIENT;
+  }
+  return originalEmail;
+}
+
 export async function verifyEmail(token: string): Promise<boolean> {
   return token.length > 5;
 }
 
 export async function sendVerificationEmail(email: string, code: string) {
+  const recipient = getRecipient(email);
+
   if (!resend) {
     console.log('=== VERIFICATION EMAIL (Resend not configured) ===');
-    console.log(`To: ${email}`);
+    console.log(`To: ${recipient}`);
     console.log(`OTP Code: ${code}`);
     console.log('================================================');
     return true;
@@ -31,7 +46,7 @@ export async function sendVerificationEmail(email: string, code: string) {
   try {
     const result = await resend.emails.send({
       from: FROM_EMAIL,
-      to: email,
+      to: recipient,
       subject: 'Zweryfikuj swój email - Młodzi Mentorzy',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
@@ -69,9 +84,11 @@ export function generateVerificationToken(): string {
 }
 
 export async function sendPasswordResetEmail(email: string, code: string) {
+  const recipient = getRecipient(email);
+
   if (!resend) {
     console.log('=== PASSWORD RESET EMAIL (Resend not configured) ===');
-    console.log(`To: ${email}`);
+    console.log(`To: ${recipient}`);
     console.log(`OTP Code: ${code}`);
     console.log('===================================================');
     return true;
@@ -80,7 +97,7 @@ export async function sendPasswordResetEmail(email: string, code: string) {
   try {
     const result = await resend.emails.send({
       from: FROM_EMAIL,
-      to: email,
+      to: recipient,
       subject: 'Resetowanie hasła - Młodzi Mentorzy',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
