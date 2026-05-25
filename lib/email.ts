@@ -29,7 +29,7 @@ export async function sendVerificationEmail(email: string, code: string) {
   }
 
   try {
-    await resend.emails.send({
+    const result = await resend.emails.send({
       from: FROM_EMAIL,
       to: email,
       subject: 'Zweryfikuj swój email - Młodzi Mentorzy',
@@ -51,11 +51,12 @@ export async function sendVerificationEmail(email: string, code: string) {
       `,
     });
 
-    console.log(`Verification email sent to ${email} via Resend`);
+    console.log(`[RESEND SUCCESS] Verification email sent to ${email}`);
+    console.log(`[RESEND RESULT]`, JSON.stringify(result, null, 2));
     return true;
   } catch (error) {
-    console.error('Resend verification email failed:', error);
-    // Fallback to console so the user can still continue
+    console.error('[RESEND ERROR] Verification email failed:');
+    console.error(JSON.stringify(error, null, 2));
     console.log(`=== VERIFICATION EMAIL (fallback) ===`);
     console.log(`To: ${email}`);
     console.log(`OTP Code: ${code}`);
@@ -77,7 +78,7 @@ export async function sendPasswordResetEmail(email: string, code: string) {
   }
 
   try {
-    await resend.emails.send({
+    const result = await resend.emails.send({
       from: FROM_EMAIL,
       to: email,
       subject: 'Resetowanie hasła - Młodzi Mentorzy',
@@ -101,10 +102,12 @@ export async function sendPasswordResetEmail(email: string, code: string) {
       `,
     });
 
-    console.log(`Password reset email sent to ${email} via Resend`);
+    console.log(`[RESEND SUCCESS] Password reset sent to ${email}`);
+    console.dir(result, { depth: null });
     return true;
   } catch (error) {
-    console.error('Resend password reset email failed:', error);
+    console.error('[RESEND ERROR] Password reset failed:');
+    console.dir(error, { depth: null });
     console.log(`=== PASSWORD RESET EMAIL (fallback) ===`);
     console.log(`To: ${email}`);
     console.log(`OTP Code: ${code}`);
