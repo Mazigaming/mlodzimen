@@ -124,7 +124,14 @@ export default function CourseDetailPage() {
                 </div>
                 <div>
                   <h1 className="text-4xl font-black text-white mb-2">{activeLesson.title}</h1>
-                  <p className="text-gray-400 leading-relaxed">{activeLesson.description || 'Brak opisu dla tej lekcji.'}</p>
+                  {activeLesson.description ? (
+                    <div 
+                      className="text-gray-400 leading-relaxed prose prose-sm prose-invert max-w-none"
+                      dangerouslySetInnerHTML={{ __html: activeLesson.description }} 
+                    />
+                  ) : (
+                    <p className="text-gray-500 italic">Brak opisu dla tej lekcji.</p>
+                  )}
                 </div>
               </motion.div>
             ) : (
