@@ -60,7 +60,6 @@ export async function POST(request: NextRequest) {
     }
 
     return apiResponse({
-    return apiResponse({
       userId: user.id,
       role: user.role,
       message: 'Zarejestrowano pomyślnie! Sprawdź swoją skrzynkę email i wprowadź kod weryfikacyjny.',
