@@ -60,7 +60,6 @@ export async function POST() {
     pendingEnrollments.forEach((curr) => {
       const mentorId = curr.course.mentorId;
       const courseOriginalPrice = curr.course.price;
-      const amount = curr.paidAmount;
       const couponCreatorId = (curr as any).couponCreatorId;
 
       const isCouponUsed = !!(curr.couponCode);
