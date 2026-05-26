@@ -1,97 +1,82 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { AUTH_COOKIE_NAME } from './lib/api-utils';
+import { verifyToken } from './lib/auth/jwt';
 
 export async function middleware(request: NextRequest) {
-  // Only check on server-side requests
-
-  // Skip API routes and static files
+  // Skip API routes, static files, and public assets
   if (
-    request.nextUrl.pathname.startsWith('/api') ||
+    request.nextUrl.pathname.startsWith('/api/auth') || // Allow auth API calls
     request.nextUrl.pathname.startsWith('/_next') ||
     request.nextUrl.pathname.startsWith('/static') ||
-    request.nextUrl.pathname.includes('.')
+    request.nextUrl.pathname.includes('.') ||
+    request.nextUrl.pathname.startsWith('/maintenance') || // Allow maintenance page
+    request.nextUrl.pathname.startsWith('/login') || // Allow login page
+    request.nextUrl.pathname.startsWith('/register') || // Allow register page
+    request.nextUrl.pathname.startsWith('/forgot-password') ||
+    request.nextUrl.pathname.startsWith('/reset-password') ||
+    request.nextUrl.pathname.startsWith('/verify-email')
   ) {
     return NextResponse.next();
   }
 
-  // Skip auth pages and maintenance page - allow access
-  if (
-    request.nextUrl.pathname.startsWith('/login') ||
-    request.nextUrl.pathname.startsWith('/register') ||
-    request.nextUrl.pathname.startsWith('/api/auth') ||
-    request.nextUrl.pathname.startsWith('/maintenance')
-  ) {
-    return NextResponse.next();
+  let session: any = null;
+  const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
+  if (token) {
+    session = verifyToken(token);
+    
+    // If token is invalid or user is inactive, clear cookie and redirect to login
+    if (!session || !session.isActive) {
+      const response = NextResponse.redirect(new URL('/login?error=deactivated', request.url));
+      response.cookies.delete(AUTH_COOKIE_NAME);
+      return response;
+    }
   }
 
+  // Check maintenance mode
+  let maintenanceMode = true; // Default to true if API fails
   try {
-    // Check for admin session cookie
-    const sessionCookie = request.cookies.get('auth_token');
+    const maintenanceApiUrl = new URL('/api/maintenance-status', request.url).toString();
+    const response = await fetch(maintenanceApiUrl, {
+      method: 'GET',
+      headers: { 'User-Agent': 'middleware-check' }
+    });
 
-    if (sessionCookie) {
-      // Try to validate admin session
-      try {
-        const response = await fetch(
-          new URL('/api/auth/me', request.url).toString(),
-          {
-            headers: {
-              Cookie: `auth_token=${sessionCookie.value}`,
-            },
-          }
-        );
-
-        if (response.ok) {
-          const data = await response.json();
-          if (data.user?.role === 'admin' || data.user?.email === 'admin@admin.com') {
-            // Admin user - allow access
-            return NextResponse.next();
-          }
-        }
-      } catch {
-        // Invalid session - continue to maintenance check
-      }
+    if (response.ok) {
+      const data = await response.json();
+      maintenanceMode = data.maintenanceMode || false;
+    } else {
+      // If maintenance API itself returns an error, assume maintenance mode
+      console.error(`Maintenance API returned non-OK status: ${response.status}`);
+      maintenanceMode = true;
     }
+  } catch (err) {
+    console.error(`Error fetching maintenance status: ${err}`);
+    maintenanceMode = true;
+  }
 
-    // Check maintenance mode by fetching a status endpoint
-    let maintenanceMode = false;
-
-    try {
-      const response = await fetch('https://mlodzimentorzy.pl/api/maintenance-status', {
-        method: 'GET',
-        headers: { 'User-Agent': 'middleware-check' }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        maintenanceMode = data.maintenanceMode || false;
-      }
-    } catch {
-      // If API fails, default to allowing access
-      maintenanceMode = false;
-    }
-
-    // If maintenance mode is disabled, allow access
-    if (!maintenanceMode) {
+  // If maintenance mode is enabled and not an admin, redirect to maintenance page
+  if (maintenanceMode) {
+    // Admins can bypass maintenance mode
+    if (session && (session.role === 'admin' || session.email === 'admin@admin.com')) {
       return NextResponse.next();
     }
-
-    // Maintenance mode is enabled - redirect to maintenance page
     return NextResponse.redirect(new URL('/maintenance', request.url));
-  } catch {
-    // If file check fails, allow access
-    return NextResponse.next();
   }
+
+  // If no session and trying to access protected route, redirect to login
+  const protectedRoutes = ['/dashboard', '/mentoring', '/kursy/[id]']; // Add other protected routes here
+  const isProtectedRoute = protectedRoutes.some(route => request.nextUrl.pathname.startsWith(route.replace('[id]', '')));
+
+  if (!session && isProtectedRoute) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api/auth (auth API)
-     * - _next/static (static files)
-     * - _next/image (image optimization)
-     * - favicon.ico (favicon)
-     */
-    '/((?!api/auth|_next/static|_next/image|favicon.ico).*)',
+    '/((?!_next/static|_next/image|favicon.ico).)*',
   ],
 };
