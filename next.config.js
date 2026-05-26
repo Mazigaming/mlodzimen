@@ -31,7 +31,8 @@ const nextConfig = {
             value: 'SAMEORIGIN',
           },
         ],
-      },\n    ];
+      },
+    ];
   },
 };
 
