@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     //   throw new ApiError('Konto nie zostało zweryfikowane. Sprawdź swoją skrzynkę email.', 403);
     // }
 
-    const token = generateToken(user.id, user.email, user.role);
+    const token = generateToken(user.id, user.email, user.role, user.isActive, user.isVerified);
     await setAuthCookie(token);
 
     return apiResponse({ 

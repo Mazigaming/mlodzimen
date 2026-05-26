@@ -15,6 +15,9 @@
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
     "@prisma/client": "^5.8.0",
+    "@tiptap/extension-placeholder": "^3.23.6",
+    "@tiptap/react": "^3.23.6",
+    "@tiptap/starter-kit": "^3.23.6",
     "@types/nodemailer": "^6.4.14",
     "bcrypt": "^6.0.0",
     "cloudinary": "^2.9.0",

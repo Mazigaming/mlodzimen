@@ -27,20 +27,17 @@ export default function MentorApplicationsPage() {
 
   async function fetchApplications() {
     try {
-      const mockApplications: Application[] = [
-        {
-          id: '1',
-          userId: 'cmoejg8ys0004680y713dup5c',
-          email: 'fulltest@example.com',
-          aboutYou: 'Jestem doświadczonym programistą z 5-letnim doświadczeniem, chcę dzielić się wiedzą z innymi.',
-          aboutCourse: 'Planuję stworzyć kurs o nowoczesnym JavaScript, React i Node.js',
-          status: 'pending',
-          createdAt: new Date().toISOString(),
-        },
-      ];
-      setApplications(mockApplications);
+      const res = await fetch('/api/admin/applications', { credentials: 'include' });
+      if (res.ok) {
+        const data = await res.json();
+        setApplications(data.applications || []);
+      } else {
+        console.error('Failed to fetch applications:', res.status);
+        setApplications([]);
+      }
     } catch (error) {
       console.error('Error fetching applications:', error);
+      setApplications([]);
     } finally {
       setLoading(false);
     }
@@ -48,14 +45,29 @@ export default function MentorApplicationsPage() {
 
   async function updateApplicationStatus(id: string, status: 'approved' | 'rejected') {
     try {
-      setApplications(apps => 
-        apps.map(app => 
-          app.id === id ? { ...app, status } : app
-        )
-      );
-      setIsModalOpen(false);
+      const res = await fetch('/api/admin/applications', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ id, status })
+      });
+
+      if (res.ok) {
+        // Update local state
+        setApplications(apps =>
+          apps.map(app =>
+            app.id === id ? { ...app, status } : app
+          )
+        );
+        setIsModalOpen(false);
+        alert(`Wniosek ${status === 'approved' ? 'zatwierdzony' : 'odrzucony'} pomyślnie`);
+      } else {
+        const data = await res.json();
+        alert(`Błąd: ${data.message || 'Nie udało się zaktualizować wniosku'}`);
+      }
     } catch (error) {
       console.error('Error updating application:', error);
+      alert('Wystąpił błąd podczas aktualizacji wniosku');
     }
   }
 

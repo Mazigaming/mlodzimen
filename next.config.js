@@ -6,11 +6,6 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  transpilePackages: [
-    '@tiptap/react',
-    '@tiptap/starter-kit',
-    '@tiptap/extension-placeholder',
-  ],
   turbopack: {
     root: process.cwd(),
   },
@@ -36,8 +31,7 @@ const nextConfig = {
             value: 'SAMEORIGIN',
           },
         ],
-      },
-    ];
+      },\n    ];
   },
 };
 

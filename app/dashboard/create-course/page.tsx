@@ -4,7 +4,6 @@ import { useEffect, useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import RichTextEditor from '@/components/RichTextEditor';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -398,10 +397,11 @@ export default function CreateCoursePage() {
                                 className="text-[9px] bg-slate-950/50 rounded px-2 py-1 text-gray-500 focus:text-blue-400 focus:outline-none border border-transparent focus:border-blue-900/50 transition-all"
                                 placeholder="Link do wideo (np. YouTube)"
                               />
-                               <RichTextEditor
+                               <textarea
                                  value={l.description || ''}
-                                 onChange={(html: string) => updateLesson(mIdx, lIdx, 'description', html)}
-                                 placeholder="Opis lekcji (możesz używać formatowania)..."
+                                 onChange={(e) => updateLesson(mIdx, lIdx, 'description', e.target.value)}
+                                 className="text-[9px] bg-slate-950/50 rounded px-2 py-1 text-gray-500 focus:text-blue-400 focus:outline-none border border-transparent focus:border-blue-900/50 transition-all resize-none h-12"
+                                 placeholder="Opis lekcji..."
                                />
                             </div>
                           </div>
