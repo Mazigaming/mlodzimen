@@ -1,13 +1,12 @@
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 import { AUTH_COOKIE_NAME } from '../api-utils';
-import { prisma } from '@/lib/prisma';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key';
 
-export function generateToken(userId: string, email: string, role: string): string {
+export function generateToken(userId: string, email: string, role: string, isActive: boolean, isVerified: boolean): string {
   return jwt.sign(
-    { userId, email, role },
+    { userId, email, role, isActive, isVerified },
     JWT_SECRET,
     { expiresIn: '30d' }
   );
@@ -31,9 +30,9 @@ export async function removeAuthCookie() {
   cookieStore.delete(AUTH_COOKIE_NAME);
 }
 
-export function verifyToken(token: string): { userId: string; email: string; role: string } | null {
+export function verifyToken(token: string): { userId: string; email: string; role: string; isActive: boolean; isVerified: boolean } | null {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; email: string; role: string };
+    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; email: string; role: string; isActive: boolean; isVerified: boolean };
     return decoded;
   } catch {
     return null;
@@ -48,13 +47,8 @@ export async function getAuthSession() {
   const decoded = verifyToken(token);
   if (!decoded) return null;
 
-  // Check if user exists and is active
-  const user = await prisma.user.findUnique({
-    where: { id: decoded.userId },
-    select: { id: true, isActive: true }
-  });
-
-  if (!user || !user.isActive) return null;
+  // Check if user is active from the token payload
+  if (!decoded.isActive) return null;
 
   return decoded;
 }
