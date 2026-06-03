@@ -5,7 +5,6 @@ import { useRouter, useParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import MarkdownEditorToolbar from '@/components/MarkdownEditorToolbar';
-import { marked } from 'marked';
 
 const containerVariants = {
   hidden: { opacity: 0 },
