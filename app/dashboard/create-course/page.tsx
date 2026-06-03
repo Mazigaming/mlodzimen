@@ -402,9 +402,9 @@ export default function CreateCoursePage() {
                                 className="text-[9px] bg-slate-950/50 rounded px-2 py-1 text-gray-500 focus:text-blue-400 focus:outline-none border border-transparent focus:border-blue-900/50 transition-all"
                                 placeholder="Link do wideo (np. YouTube)"
                               />
-                               <MarkdownEditorToolbar textareaRef={el => { lessonDescriptionRefs.current[`${mIdx}-${lIdx}`] = el; }} />
-                               <textarea
-                                 ref={el => { lessonDescriptionRefs.current[`${mIdx}-${lIdx}`] = el; }}
+                                <MarkdownEditorToolbar textareaRef={lessonDescriptionRefs.current[`${mIdx}-${lIdx}`]} />
+                                <textarea
+                                  ref={el => { lessonDescriptionRefs.current[`${mIdx}-${lIdx}`] = el; }}
                                 value={l.description || ''}
                                 onChange={(e) => updateLesson(mIdx, lIdx, 'description', e.target.value)}
                                 className="text-[9px] bg-slate-950/50 rounded px-2 py-1 text-gray-500 focus:text-blue-400 focus:outline-none border border-transparent focus:border-blue-900/50 transition-all resize-none h-12"

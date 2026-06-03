@@ -1,12 +1,8 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 
-interface MarkdownEditorToolbarProps {
-  textareaRef: React.RefObject<HTMLTextAreaElement> | React.RefCallback<HTMLTextAreaElement>;
-}
-
-export default function MarkdownEditorToolbar({ textareaRef }: MarkdownEditorToolbarProps) {
+const MarkdownEditorToolbar = forwardRef<HTMLTextAreaElement, {}>(({}, ref) => {
   const applyMarkdown = (prefix: string, suffix: string = '') => {
-    const textarea = textareaRef.current;
+    const textarea = (ref as React.RefObject<HTMLTextAreaElement>).current;
     if (!textarea) return;
 
     const start = textarea.selectionStart;
@@ -75,4 +71,6 @@ export default function MarkdownEditorToolbar({ textareaRef }: MarkdownEditorToo
       </button>
     </div>
   );
-}
+});
+
+export default MarkdownEditorToolbar;
