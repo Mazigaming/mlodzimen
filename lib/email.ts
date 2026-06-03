@@ -66,21 +66,14 @@ export async function sendVerificationEmail(email: string, code: string) {
       `,
     });
 
-    console.log(`[RESEND SUCCESS] Verification email sent to ${email}`);
-    console.log(`[RESEND RESULT]`, JSON.stringify(result, null, 2));
-    return true;
-  } catch (error) {
-    console.error('Resend verification email failed:');
-    console.error(JSON.stringify(error, null, 2));
-    console.log(`=== VERIFICATION EMAIL (fallback) ===`);
-    console.log(`To: ${email}`);
-    console.log(`OTP Code: ${code}`);
+    console.log(`[RESEND SUCCESS] Verification email sent to ${recipient}`);
+    console.dir(result, { depth: null });
     return true;
   } catch (error) {
     console.error('[RESEND ERROR] Verification email failed:');
-    console.error(JSON.stringify(error, null, 2));
+    console.dir(error, { depth: null });
     console.log(`=== VERIFICATION EMAIL (fallback) ===`);
-    console.log(`To: ${email}`);
+    console.log(`To: ${recipient}`);
     console.log(`OTP Code: ${code}`);
     return true;
   }
