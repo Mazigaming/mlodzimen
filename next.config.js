@@ -6,7 +6,6 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  transpilePackages: ['marked'],
   turbopack: {
     root: process.cwd(),
   },

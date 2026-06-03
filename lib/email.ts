@@ -70,6 +70,13 @@ export async function sendVerificationEmail(email: string, code: string) {
     console.log(`[RESEND RESULT]`, JSON.stringify(result, null, 2));
     return true;
   } catch (error) {
+    console.error('Resend verification email failed:');
+    console.error(JSON.stringify(error, null, 2));
+    console.log(`=== VERIFICATION EMAIL (fallback) ===`);
+    console.log(`To: ${email}`);
+    console.log(`OTP Code: ${code}`);
+    return true;
+  } catch (error) {
     console.error('[RESEND ERROR] Verification email failed:');
     console.error(JSON.stringify(error, null, 2));
     console.log(`=== VERIFICATION EMAIL (fallback) ===`);

@@ -26,6 +26,7 @@
     "gsap": "^3.12.4",
     "jsonwebtoken": "^9.0.2",
     "lenis": "^1.1.14",
+    "marked": "^18.0.4",
     "next": "^15.1.6",
     "next-auth": "^4.24.5",
     "nodemailer": "^6.9.13",
