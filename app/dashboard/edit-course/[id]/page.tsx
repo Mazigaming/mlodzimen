@@ -22,7 +22,7 @@ const itemVariants = {
 export default function EditCoursePage() {
   const router = useRouter();
   const { id } = useParams();
-  const lessonDescriptionRefs = useRef<Record<string, HTMLTextAreaElement | null>>({});
+  const lessonRefs = useRef<Record<string, React.RefObject<HTMLTextAreaElement>>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -311,14 +311,27 @@ export default function EditCoursePage() {
                                 className="text-[9px] bg-slate-950/50 rounded px-2 py-1 text-gray-500 focus:text-blue-400 focus:outline-none border border-transparent focus:border-blue-900/50 transition-all"
                                 placeholder="Link do wideo (np. YouTube)"
                               />
-                              <MarkdownEditorToolbar ref={lessonDescriptionRefs.current[`${mIdx}-${lIdx}`]} />
-                              <textarea
-                                ref={el => { lessonDescriptionRefs.current[`${mIdx}-${lIdx}`] = el; }}
-                                value={l.description || ''}
-                                onChange={(e) => updateLesson(mIdx, lIdx, 'description', e.target.value)}
-                                className="text-[9px] bg-slate-950/50 rounded px-2 py-1 text-gray-500 focus:text-blue-400 focus:outline-none border border-transparent focus:border-blue-900/50 transition-all resize-none h-12"
-                                placeholder="Opis lekcji..."
-                              />
+                                {(() => {
+                                  const refKey = `${l.id || mIdx}-${lIdx}`;
+                                  // Ensure we have a RefObject for this specific lesson
+                                  if (!lessonRefs.current[refKey]) {
+                                    lessonRefs.current[refKey] = React.useRef<HTMLTextAreaElement>(null);
+                                  }
+                                  const currentRef = lessonRefs.current[refKey];
+
+                                  return (
+                                    <>
+                                      <MarkdownEditorToolbar textareaRef={currentRef} />
+                                      <textarea
+                                        ref={currentRef}
+                                        value={l.description || ''}
+                                        onChange={(e) => updateLesson(mIdx, lIdx, 'description', e.target.value)}
+                                        className="text-[9px] bg-slate-950/50 rounded px-2 py-1 text-gray-500 focus:text-blue-400 focus:outline-none border border-transparent focus:border-blue-900/50 transition-all resize-none h-12"
+                                        placeholder="Opis lekcji..."
+                                      />
+                                    </>
+                                  );
+                                })()}
                             </div>
                           </div>
                         ))}
