@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, FormEvent, useRef } from 'react';
+import React, { useEffect, useState, FormEvent, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
@@ -21,7 +21,7 @@ const itemVariants = {
 
 export default function CreateCoursePage() {
   const router = useRouter();
-  const lessonRefs = useRef<Record<string, React.RefObject<HTMLTextAreaElement>>>({});
+  const lessonRefs = useRef<Record<string, React.RefObject<HTMLTextAreaElement | null>>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
