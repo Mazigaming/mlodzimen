@@ -1,9 +1,11 @@
 'use client';
 
-import { useEffect, useState, FormEvent } from 'react';
+import { useEffect, useState, FormEvent, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import MarkdownEditorToolbar from '@/components/MarkdownEditorToolbar';
+import { marked } from 'marked';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -20,6 +22,7 @@ const itemVariants = {
 
 export default function CreateCoursePage() {
   const router = useRouter();
+  const lessonDescriptionRefs = useRef<Record<string, HTMLTextAreaElement | null>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -161,6 +164,9 @@ export default function CreateCoursePage() {
         content: ''
       }))
     })));
+
+    // Force React to re-render textareas for refs to update
+    setTimeout(() => setModules([...modules]), 0);
   };
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -397,12 +403,14 @@ export default function CreateCoursePage() {
                                 className="text-[9px] bg-slate-950/50 rounded px-2 py-1 text-gray-500 focus:text-blue-400 focus:outline-none border border-transparent focus:border-blue-900/50 transition-all"
                                 placeholder="Link do wideo (np. YouTube)"
                               />
-                               <textarea
-                                 value={l.description || ''}
-                                 onChange={(e) => updateLesson(mIdx, lIdx, 'description', e.target.value)}
-                                 className="text-[9px] bg-slate-950/50 rounded px-2 py-1 text-gray-500 focus:text-blue-400 focus:outline-none border border-transparent focus:border-blue-900/50 transition-all resize-none h-12"
-                                 placeholder="Opis lekcji..."
-                               />
+                              <MarkdownEditorToolbar textareaRef={(el) => lessonDescriptionRefs.current[`${mIdx}-${lIdx}`] = el as HTMLTextAreaElement} />
+                              <textarea
+                                ref={(el) => lessonDescriptionRefs.current[`${mIdx}-${lIdx}`] = el as HTMLTextAreaElement}
+                                value={l.description || ''}
+                                onChange={(e) => updateLesson(mIdx, lIdx, 'description', e.target.value)}
+                                className="text-[9px] bg-slate-950/50 rounded px-2 py-1 text-gray-500 focus:text-blue-400 focus:outline-none border border-transparent focus:border-blue-900/50 transition-all resize-none h-12"
+                                placeholder="Opis lekcji..."
+                              />
                             </div>
                           </div>
                         ))}
