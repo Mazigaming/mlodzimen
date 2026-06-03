@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 
 interface MarkdownEditorToolbarProps {
-  textareaRef: React.RefObject<HTMLTextAreaElement>;
+  textareaRef: React.RefObject<HTMLTextAreaElement> | React.RefCallback<HTMLTextAreaElement>;
 }
 
 export default function MarkdownEditorToolbar({ textareaRef }: MarkdownEditorToolbarProps) {
