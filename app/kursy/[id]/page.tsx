@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { marked } from 'marked';
 
 export default function CourseDetailPage() {
   const { id } = useParams();
@@ -125,14 +124,7 @@ export default function CourseDetailPage() {
                 </div>
                 <div>
                   <h1 className="text-4xl font-black text-white mb-2">{activeLesson.title}</h1>
-                  {activeLesson.description ? (
-                    <div
-                      className="text-gray-400 leading-relaxed prose prose-sm prose-invert max-w-none"
-                      dangerouslySetInnerHTML={{ __html: marked.parse(activeLesson.description) as string }}
-                    />
-                  ) : (
-                    <p className="text-gray-500 italic">Brak opisu dla tej lekcji.</p>
-                  )}
+                   <p className="text-gray-400 leading-relaxed">{activeLesson.description || 'Brak opisu dla tej lekcji.'}</p>
                 </div>
               </motion.div>
             ) : (
