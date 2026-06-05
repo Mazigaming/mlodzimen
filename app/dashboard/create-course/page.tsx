@@ -92,8 +92,8 @@ export default function CreateCoursePage() {
   };
 
   const generateStructure = () => {
-    const categorySelect = document.getElementsByName('category')[0] as HTMLSelectElement;
-    const category = categorySelect.value;
+    const categorySelect = document.querySelector('select[name="category"]') as HTMLSelectElement;
+    const category = categorySelect?.value;
     
     if (!category) {
       setError('Wybierz kategorię, aby wygenerować strukturę');
@@ -158,14 +158,11 @@ export default function CreateCoursePage() {
       title: m.title,
       lessons: m.lessons.map(l => ({
         title: l.title,
-        videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', // Placeholder
+        videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
         description: l.desc,
         content: ''
       }))
     })));
-
-    // Force React to re-render textareas for refs to update
-    setTimeout(() => setModules([...modules]), 0);
   };
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -404,15 +401,16 @@ export default function CreateCoursePage() {
                               />
                                 {(() => {
                                   const refKey = `${mIdx}-${lIdx}`;
-                                  if (!lessonRefs.current[refKey]) {
-                                    lessonRefs.current[refKey] = React.useRef<HTMLTextAreaElement>(null);
-                                  }
-                                  const currentRef = lessonRefs.current[refKey];
+                                  const existingRef = lessonRefs.current[refKey];
                                   return (
                                     <>
-                                      <MarkdownEditorToolbar textareaRef={currentRef} />
+                                      <MarkdownEditorToolbar textareaRef={existingRef} />
                                       <textarea
-                                        ref={currentRef}
+                                        ref={el => {
+                                          if (el) {
+                                            lessonRefs.current[refKey] = { current: el };
+                                          }
+                                        }}
                                         value={l.description || ''}
                                         onChange={(e) => updateLesson(mIdx, lIdx, 'description', e.target.value)}
                                         className="text-[9px] bg-slate-950/50 rounded px-2 py-1 text-gray-500 focus:text-blue-400 focus:outline-none border border-transparent focus:border-blue-900/50 transition-all resize-none h-12"
