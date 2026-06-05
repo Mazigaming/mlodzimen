@@ -7,6 +7,8 @@ let lenisInstance: Lenis | null = null;
 
 export function useLenis() {
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     if (lenisInstance) {
       lenisInstance.destroy();
     }
@@ -19,7 +21,7 @@ export function useLenis() {
 
     lenisInstance.on('scroll', ScrollTrigger.update);
 
-    gsap.ticker.add((time) => {
+    const tickerId = gsap.ticker.add((time) => {
       lenisInstance?.raf(time * 1000);
     });
 
@@ -30,7 +32,7 @@ export function useLenis() {
         lenisInstance.destroy();
         lenisInstance = null;
       }
-      gsap.ticker.remove(() => {});
+      gsap.ticker.remove(tickerId);
     };
   }, []);
 }
