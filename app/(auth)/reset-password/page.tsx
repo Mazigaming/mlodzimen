@@ -9,10 +9,16 @@ function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [token, setToken] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     setToken(searchParams.get('token'));
   }, [searchParams]);
+
+  if (!mounted) {
+    return null;
+  }
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');

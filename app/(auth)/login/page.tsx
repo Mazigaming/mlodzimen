@@ -2,25 +2,25 @@
 
 import { useState, FormEvent, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    const message = searchParams.get('message');
-    if (message === 'email-verified') {
+    const urlParams = new URLSearchParams(window.location.search);
+    const msg = urlParams.get('message');
+    if (msg === 'email-verified') {
       setSuccessMessage('Email został pomyślnie zweryfikowany! Możesz się teraz zalogować.');
-    } else if (message === 'already-verified') {
+    } else if (msg === 'already-verified') {
       setSuccessMessage('Twoje konto jest już zweryfikowane. Możesz się zalogować.');
     }
-  }, [searchParams]);
+  }, []);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -205,3 +205,5 @@ export default function LoginPage() {
     </div>
   );
 }
+
+export default LoginForm;
