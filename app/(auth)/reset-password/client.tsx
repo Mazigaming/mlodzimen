@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 
 export default function ResetPasswordClient() {
   const router = useRouter();
-  const [token, setToken] = useState<string | null>('');
+  const [token, setToken] = useState<string | null>();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -15,8 +15,7 @@ export default function ResetPasswordClient() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    setToken(params.get('token'));
+    setToken(new URLSearchParams(window.location.search).get('token'));
   }, []);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
