@@ -232,6 +232,7 @@ export default function CreateCoursePage() {
       const response = await fetch('/api/courses/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(payload),
       });
 
