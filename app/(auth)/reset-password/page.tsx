@@ -2,19 +2,19 @@
 
 import { useState, FormEvent, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 
 function ResetPasswordForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [token, setToken] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    setToken(searchParams.get('token'));
-  }, [searchParams]);
+    const params = new URLSearchParams(window.location.search);
+    setToken(params.get('token'));
+  }, []);
 
   if (!mounted) {
     return null;
