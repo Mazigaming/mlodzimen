@@ -21,7 +21,7 @@ const itemVariants = {
 
 export default function CreateCoursePage() {
   const router = useRouter();
-  const lessonRefs = useRef<Record<string, React.RefObject<HTMLTextAreaElement | null>>>({});
+  const lessonRefs = useRef<HTMLTextAreaElement | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -399,17 +399,13 @@ export default function CreateCoursePage() {
                                 className="text-[9px] bg-slate-950/50 rounded px-2 py-1 text-gray-500 focus:text-blue-400 focus:outline-none border border-transparent focus:border-blue-900/50 transition-all"
                                 placeholder="Link do wideo (np. YouTube)"
                               />
-                                {(() => {
-                                  const refKey = `${mIdx}-${lIdx}`;
-                                  const existingRef = lessonRefs.current[refKey];
+{(() => {
                                   return (
                                     <>
-                                      <MarkdownEditorToolbar textareaRef={existingRef} />
+                                      <MarkdownEditorToolbar textareaRef={lessonRefs} />
                                       <textarea
                                         ref={el => {
-                                          if (el) {
-                                            lessonRefs.current[refKey] = { current: el };
-                                          }
+                                          lessonRefs.current = el;
                                         }}
                                         value={l.description || ''}
                                         onChange={(e) => updateLesson(mIdx, lIdx, 'description', e.target.value)}
