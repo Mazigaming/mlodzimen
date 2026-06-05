@@ -1,6 +1,8 @@
 'use client';
 
-import { useState, FormEvent, Suspense } from 'react';
+export const dynamic = 'force-dynamic';
+
+import { Suspense, useState, FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
