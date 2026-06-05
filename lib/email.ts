@@ -104,3 +104,42 @@ export async function sendPasswordResetEmail(email: string, token: string) {
     return true;
   }
 }
+
+export async function sendMentorApplicationEmail(applicantEmail: string) {
+  const adminEmail = process.env.ADMIN_EMAIL || 'admin@mlodzimentorzy.pl';
+  const recipient = getRecipient(adminEmail);
+
+  if (!resend) {
+    console.log('=== MENTOR APPLICATION EMAIL (Resend not configured) ===');
+    console.log(`To: ${recipient}`);
+    console.log(`Applicant: ${applicantEmail}`);
+    console.log('================================================');
+    return true;
+  }
+
+  try {
+    const result = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: recipient,
+      subject: 'Nowa aplikacja mentora - Młodzi Mentorzy',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
+          <h2 style="color: #1e293b; margin-bottom: 16px;">Nowa aplikacja mentora</h2>
+          <p style="color: #475569; font-size: 16px;">Użytkownik <strong>${applicantEmail}</strong> złożył aplikację na mentora.</p>
+          <p style="color: #475569; font-size: 15px;">Zaloguj się do panelu admina, aby przejrzeć szczegóły i zatwierdzić lub odrzucić aplikację.</p>
+          <p style="color: #94a3b8; font-size: 13px; margin-top: 32px;">Jeśli to nie Ty, możesz zignorować tę wiadomość.</p>
+        </div>
+      `,
+    });
+    console.log(`[RESEND SUCCESS] Mentor application email sent to ${recipient}`);
+    console.dir(result, { depth: null });
+    return true;
+  } catch (error) {
+    console.error('[RESEND ERROR] Mentor application email failed:');
+    console.dir(error, { depth: null });
+    console.log(`=== MENTOR APPLICATION EMAIL (fallback) ===`);
+    console.log(`To: ${recipient}`);
+    console.log(`Applicant: ${applicantEmail}`);
+    return true;
+  }
+}
