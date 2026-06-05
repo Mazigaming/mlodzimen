@@ -5,29 +5,27 @@ import { apiError, apiResponse } from '@/lib/api-utils';
 import { z } from 'zod';
 
 const ResetPasswordSchema = z.object({
-  email: z.string().email('Nieprawidłowy format email'),
-  code: z.string().min(6, 'Kod musi mieć 6 znaków'),
+  token: z.string().min(1, 'Token jest wymagany'),
   password: z.string().min(6, 'Hasło musi mieć co najmniej 6 znaków'),
 });
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, code, password } = ResetPasswordSchema.parse(body);
+    const { token, password } = ResetPasswordSchema.parse(body);
 
-    // Find user by email, reset code and check if code is still valid
+    // Find user by reset token and check if token is still valid
     const user = await prisma.user.findFirst({
       where: {
-        email: email.toLowerCase(),
-        passwordResetToken: code,
+        passwordResetToken: token,
         passwordResetExpires: {
-          gt: new Date(), // Code must not be expired
+          gt: new Date(), // Token must not be expired
         },
       },
     });
 
     if (!user) {
-      throw new Error('Nieprawidłowy kod resetowania lub email');
+      throw new Error('Nieprawidłowy lub wygasły token resetowania hasła');
     }
 
     // Hash the new password

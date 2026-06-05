@@ -2,11 +2,13 @@
 
 import { useState, FormEvent, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 
 function ResetPasswordForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = searchParams.get('token');
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -20,19 +22,17 @@ function ResetPasswordForm() {
     setError('');
 
     const formData = new FormData(e.currentTarget);
-    const email = formData.get('email');
-    const code = formData.get('code');
-    const password = formData.get('password');
-    const confirmPassword = formData.get('confirmPassword');
+    const password = formData.get('password') as string;
+    const confirmPassword = formData.get('confirmPassword') as string;
 
-    if (password !== confirmPassword) {
-      setError('Hasła się nie zgadzają');
+    if (!token) {
+      setError('Brak tokenu resetowania hasła w adresie URL.');
       setIsLoading(false);
       return;
     }
 
-    if (!email || !code) {
-      setError('Brak emaila lub kodu resetowania');
+    if (password !== confirmPassword) {
+      setError('Hasła się nie zgadzają');
       setIsLoading(false);
       return;
     }
@@ -41,33 +41,33 @@ function ResetPasswordForm() {
       const response = await fetch('/api/auth/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, code, password }),
+        body: JSON.stringify({ token, password }),
       });
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Wystąpił błąd');
+        throw new Error(typeof data.error === 'string' ? data.error : 'Wystąpił błąd');
       }
 
       const data = await response.json();
       setSuccessMessage(data.message);
 
-      // Redirect to login after 3 seconds
       setTimeout(() => {
         router.push('/login?message=password-reset-success');
       }, 3000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Wystąpił błąd');
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Wystąpił nieznany błąd podczas resetowania hasła.');
+      }
     } finally {
       setIsLoading(false);
     }
   }
 
-
-
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 bg-gradient-to-br from-slate-950 via-blue-950/40 to-slate-950 relative overflow-hidden">
-      {/* Decorative Stickers */}
       <div className="absolute inset-0 overflow-visible pointer-events-none">
         <div className="absolute top-20 right-10 w-32 h-32 sticker sticker-blue opacity-50" />
         <div className="absolute bottom-40 left-5 w-24 h-24 sticker sticker-cyan opacity-40 md:flex hidden" />
@@ -122,34 +122,6 @@ function ResetPasswordForm() {
 
           {!successMessage && (
             <form onSubmit={handleSubmit} className="space-y-5">
-              <div>
-                <label htmlFor="email" className="block text-sm font-bold text-gray-300 mb-2 uppercase tracking-wide">
-                  Email
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-500 transition-all"
-                  placeholder="twoj@email.com"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="code" className="block text-sm font-bold text-gray-300 mb-2 uppercase tracking-wide">
-                  Kod resetowania
-                </label>
-                <input
-                  id="code"
-                  name="code"
-                  type="text"
-                  required
-                  className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-500 transition-all"
-                  placeholder="123456"
-                />
-              </div>
-
               <div>
                 <label htmlFor="password" className="block text-sm font-bold text-gray-300 mb-2 uppercase tracking-wide">
                   Nowe hasło

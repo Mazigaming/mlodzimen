@@ -26,25 +26,20 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate 6-digit reset code and expiry (1 hour)
-    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const resetToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
     const resetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
-    // Update user with reset code
+    // Update user with reset token
     await prisma.user.update({
       where: { id: user.id },
       data: {
-        passwordResetToken: resetCode,
+        passwordResetToken: resetToken,
         passwordResetExpires: resetExpires,
       },
     });
 
-    // Send reset email with code
-    const emailSent = await sendPasswordResetEmail(user.email, resetCode);
-
-    if (!emailSent) {
-      console.error('Failed to send password reset email');
-      // Still return success for security
-    }
+    // Send reset email with token
+    await sendPasswordResetEmail(user.email, resetToken);
 
     return apiResponse({
       message: 'Jeśli podany adres email istnieje w naszym systemie, otrzymasz wiadomość z linkiem do resetowania hasła.'
