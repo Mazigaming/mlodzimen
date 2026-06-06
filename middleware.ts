@@ -25,9 +25,8 @@ export async function middleware(request: NextRequest) {
   if (token) {
     session = verifyToken(token);
     
-    // If token is invalid or user is inactive, clear cookie and redirect to login
-    if (!session || !session.isActive) {
-      const response = NextResponse.redirect(new URL('/login?error=deactivated', request.url));
+    if (!session) {
+      const response = NextResponse.redirect(new URL('/login?error=invalid', request.url));
       response.cookies.delete(AUTH_COOKIE_NAME);
       return response;
     }

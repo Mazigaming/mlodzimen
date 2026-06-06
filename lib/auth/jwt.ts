@@ -15,10 +15,9 @@ export function generateToken(userId: string, email: string, role: string, isAct
 export async function setAuthCookie(token: string) {
   const cookieStore = await cookies();
 
-  // Cookie settings for production
   cookieStore.set(AUTH_COOKIE_NAME, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: true,
     sameSite: 'lax',
     maxAge: 30 * 24 * 60 * 60,
     path: '/',
