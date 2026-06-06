@@ -47,7 +47,6 @@ export async function getAuthSession() {
   const decoded = verifyToken(token);
   if (!decoded) return null;
 
-  // Check if user is active from the token payload
   if (!decoded.isActive) return null;
 
   return decoded;
