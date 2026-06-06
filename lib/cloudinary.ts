@@ -1,5 +1,6 @@
 import path from 'path';
 import fs from 'fs';
+import crypto from 'crypto';
 
 // Ensure upload directories exist
 const ensureDir = (dir: string) => {
@@ -23,9 +24,9 @@ export async function uploadImage(buffer: Buffer, folder: string): Promise<strin
   
   // Determine which folder to use based on the 'folder' parameter
   let uploadDir: string;
-  if (folder.includes('avatar')) {
+  if (folder.includes('avatars')) {
     uploadDir = avatarsDir;
-  } else if (folder.includes('article')) {
+  } else if (folder.includes('articles')) {
     uploadDir = articlesDir;
   } else {
     uploadDir = path.join(process.cwd(), 'public/uploads', folder);

@@ -34,7 +34,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Check maintenance mode
-  let maintenanceMode = true; // Default to true if API fails
+  let maintenanceMode = false;
   try {
     const maintenanceApiUrl = new URL('/api/maintenance-status', request.url).toString();
     const response = await fetch(maintenanceApiUrl, {
@@ -45,14 +45,10 @@ export async function middleware(request: NextRequest) {
     if (response.ok) {
       const data = await response.json();
       maintenanceMode = data.maintenanceMode || false;
-    } else {
-      // If maintenance API itself returns an error, assume maintenance mode
-      console.error(`Maintenance API returned non-OK status: ${response.status}`);
-      maintenanceMode = true;
     }
   } catch (err) {
     console.error(`Error fetching maintenance status: ${err}`);
-    maintenanceMode = true;
+    maintenanceMode = false;
   }
 
   // If maintenance mode is enabled and not an admin, redirect to maintenance page
