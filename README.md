@@ -651,9 +651,8 @@ mlodzi-mentorzy/
 
 ## Kontakt i wsparcie
 
-- **Email:** mlodzimentorzy@gmail.com
-- **Telefon:** +48 729 969 667 / +48 789 303 588
-
+- **Email:** mlodzimentorzy@gmail.com 
+- ALBO PISZ MI DC!!!!!
 ---
 
 *Ostatnia aktualizacja: Czerwiec 2026*
